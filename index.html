@@ -62,9 +62,14 @@
   }
   .chip:hover { transform: translateY(-1px); border-color: #3a4470; }
   .ava {
+    position: relative; overflow: hidden;
     width: 32px; height: 32px; flex: none; display: grid; place-items: center;
     font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px;
     color: #0b0e1a; clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  }
+  .ava img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: top center;
   }
   .chipName { font-size: 13.5px; font-weight: 600; line-height: 1.15; }
   .chipRole { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; }
@@ -1087,6 +1092,18 @@ const initials = (name) => name
   .join("")
   .toUpperCase();
 
+// Hero portrait support: drop images into an /icons folder in the repo,
+// named after each hero, lowercase, spaces → hyphens, "&" → "and".
+// e.g. icons/spider-man.png, icons/cloak-and-dagger.png, icons/jeff-the-land-shark.png
+// PNG, JPG, or WEBP all work — the app tries .png first, then .webp, then .jpg.
+// Missing images automatically fall back to the initials badge.
+const slug = (name) => name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+const avaHTML = (name, color) => {
+  const s = slug(name);
+  return `<div class="ava" style="background:${color}">${initials(name)}<img src="icons/${s}.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src='icons/${s}.webp'}else if(this.src.endsWith('.webp')){this.src='icons/${s}.jpg'}else{this.remove()}"></div>`;
+};
+
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const view = document.getElementById("view");
@@ -1130,7 +1147,7 @@ function renderGrid() {
 
   const chips = heroes.map((h) => `
     <button class="chip" style="border-left-color:${ROLE[h.role].color}" data-hero="${esc(h.name)}">
-      <div class="ava" style="background:${ROLE[h.role].color}">${initials(h.name)}</div>
+      ${avaHTML(h.name, ROLE[h.role].color)}
       <div>
         <div class="chipName">${esc(h.name)}${h.flex ? '<span class="flexBadge">FLEX</span>' : ""}</div>
         <div class="chipRole" style="color:${ROLE[h.role].color}">${ROLE[h.role].label}</div>
@@ -1180,7 +1197,7 @@ function renderDetail() {
         style="border-top-color:${ROLE[r].color};background:linear-gradient(180deg, ${ROLE[r].dim}, #11162b 55%)">
         <div class="cardRole" style="color:${ROLE[r].color}">${ROLE[r].label} pick</div>
         <div class="cardHero">
-          <div class="ava" style="background:${ROLE[r].color}">${initials(cname)}</div>
+          ${avaHTML(cname, ROLE[r].color)}
           <div class="cardName">${esc(cname)}</div>
         </div>
         <div class="why">${esc(why)}</div>
@@ -1190,7 +1207,7 @@ function renderDetail() {
   view.innerHTML = `
     <button class="back" id="back">← All heroes</button>
     <div class="heroHead" style="border-left:4px solid ${ROLE[role].color}">
-      <div class="ava" style="background:${ROLE[role].color}">${initials(name)}</div>
+      ${avaHTML(name, ROLE[role].color)}
       <div>
         <div class="heroName">${esc(name)}</div>
         <div class="chipRole" style="color:${ROLE[role].color}">${ROLE[role].label} · ${ROLE[role].alt}</div>
