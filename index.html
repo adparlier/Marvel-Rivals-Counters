@@ -139,6 +139,76 @@
     border-radius: 3px; background: rgba(255,180,84,.18); color: #FFB454;
     margin-left: 6px; vertical-align: 2px;
   }
+  .tray {
+    display: flex; flex-wrap: wrap; gap: 8px; padding: 12px;
+    background: #0e1326; border: 1px solid #232a49; border-radius: 10px;
+    margin-bottom: 14px; align-items: center;
+  }
+  .trayLabel {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px;
+    letter-spacing: .12em; text-transform: uppercase; color: #8b93ad; width: 100%;
+  }
+  .slot {
+    display: flex; align-items: center; gap: 7px; padding: 5px 8px 5px 5px;
+    background: #11162b; border: 1px solid #2a3152; border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+  }
+  .slot .x {
+    background: none; border: none; color: #8b93ad; cursor: pointer;
+    font-size: 15px; line-height: 1; padding: 0 2px;
+  }
+  .slot .x:hover { color: #FF5470; }
+  .slot .ava { width: 22px; height: 22px; font-size: 9px; }
+  .slotEmpty {
+    width: 34px; height: 34px; border: 1px dashed #2a3152; border-radius: 999px;
+    display: grid; place-items: center; color: #3a4470; font-size: 16px;
+  }
+  .analyzeBtn {
+    margin-left: auto; padding: 9px 22px; cursor: pointer; border: none;
+    background: #FFB454; color: #0b0e1a; border-radius: 6px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px;
+    letter-spacing: .1em; text-transform: uppercase;
+  }
+  .analyzeBtn:disabled { opacity: .35; cursor: default; }
+  .plan {
+    padding: 16px; background: #11162b; border: 1px solid #232a49;
+    border-left: 4px solid #FFB454; border-radius: 10px; margin-bottom: 18px;
+  }
+  .planHead {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 8px;
+  }
+  .planTitle {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 20px;
+    letter-spacing: .06em; text-transform: uppercase; color: #FFB454;
+  }
+  .speakBtn {
+    padding: 7px 14px; cursor: pointer; border: 1px solid #2a3152; flex: none;
+    background: #0e1326; color: #e9ecf5; border-radius: 999px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 13px;
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+  .speakBtn.speaking { background: #FFB454; color: #0b0e1a; border-color: #FFB454; }
+  .planBody { font-size: 14px; line-height: 1.55; color: #cdd3e6; }
+  .planBody b { color: #e9ecf5; }
+  .strongInto { font-size: 11.5px; color: #7d86a3; margin-top: 7px; }
+  .micBtn {
+    padding: 9px 16px; cursor: pointer; border: 1px solid #2a3152; flex: none;
+    background: #0e1326; color: #e9ecf5; border-radius: 999px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px;
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+  .micBtn.live {
+    background: #FF5470; border-color: #FF5470; color: #fff;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 7px rgba(255,84,112,.25); } }
+  .heard {
+    width: 100%; font-size: 12.5px; color: #8b93ad; font-style: italic;
+    min-height: 16px;
+  }
+  .heard b { color: #4ADEB8; font-style: normal; }
+  @media (prefers-reduced-motion: reduce) { .micBtn.live { animation: none; } }
   @media (max-width: 640px) {
     .cards { grid-template-columns: 1fr; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
@@ -151,7 +221,7 @@
 <body>
 <div class="shell">
   <div class="brand">Rivals <em>Counter Lab</em></div>
-  <div class="sub">Season 8 · 50 heroes · Cyclops joins June 12 with Season 8.5</div>
+  <div class="sub">Season 8.5 · 51 heroes · Cyclops is live — matchups provisional until data settles</div>
   <div class="mainTabs">
     <button class="mainTab on" id="tabSolo">Character Counters</button>
     <button class="mainTab" id="tabTeam">Team Counters</button>
@@ -181,6 +251,7 @@ const HEROES = [
   { name: "Black Panther", role: "D" },
   { name: "Black Widow", role: "D" },
   { name: "Blade", role: "D" },
+  { name: "Cyclops", role: "D" },
   { name: "Daredevil", role: "D" },
   { name: "Deadpool", role: "D", flex: true },
   { name: "Elsa Bloodstone", role: "D" },
@@ -509,6 +580,25 @@ const COUNTERS = {
       ["Invisible Woman", "Push keeps him off your supports permanently"],
     ],
   },
+  "Cyclops": {
+    // Day-one entry (launched June 12, S8.5) — based on his revealed kit, not
+    // accumulated match data. He's a mid-range angle-holder: dive him, shield him out.
+    V: [
+      ["Doctor Strange", "Shield blanks optic blasts and walks the team through his angle"],
+      ["Magneto", "Shields eat the beams and bubble answers the visor-off ult"],
+      ["Venom", "Dives the angle-holder — his glide buys one escape, not two"],
+    ],
+    D: [
+      ["Spider-Man", "Mid-range anchors hate dive — on him before the beam charges"],
+      ["Black Panther", "Dashes through his sightline and forces the panic glide"],
+      ["Hela", "Out-ranges his mid-range comfort zone at full distance"],
+    ],
+    S: [
+      ["Cloak & Dagger", "Blind erases a kit built entirely on aim and angles"],
+      ["Invisible Woman", "Invis and push deny the sightline control he needs"],
+      ["Loki", "Clones scatter his ricochet targeting and bait the ult"],
+    ],
+  },
   "Daredevil": {
     V: [
       ["Emma Frost", "CC catches him the moment radar aggression starts"],
@@ -533,9 +623,9 @@ const COUNTERS = {
       ["Magneto", "Bubble saves whoever Tankpool is sitting on"],
     ],
     D: [
+      ["Hela", "Out-ranges him completely and bursts through the regen passive"],
       ["Iron Man", "Pokes from the sky where his short range can't answer"],
       ["Black Widow", "Chips him from a distance he simply can't close"],
-      ["Hela", "Out-ranges him and bursts through the regen passive"],
     ],
     S: [
       ["Mantis", "Sleep through the chaos, then focus him down"],
@@ -1079,7 +1169,7 @@ const ROLE = {
   S: { label: "Strategist", alt: "Healer", color: "#4ADEB8", dim: "rgba(74,222,184,0.14)" },
 };
 
-const state = { tab: "solo", roleFilter: "ALL", selected: null, page: 0, query: "" };
+const state = { tab: "solo", roleFilter: "ALL", selected: null, page: 0, query: "", team: [], teamView: "pick", teamPage: 0, teamRoleFilter: "ALL", teamQuery: "" };
 
 const heroRole = (name) => { const h = HEROES.find((x) => x.name === name); return h ? h.role : "D"; };
 
@@ -1119,14 +1209,7 @@ function render() {
   tabSolo.classList.toggle("on", state.tab === "solo");
   tabTeam.classList.toggle("on", state.tab === "team");
 
-  if (state.tab === "team") {
-    view.innerHTML = `
-      <div class="empty">
-        <h3>Team counters — up next</h3>
-        <p>This tab will let you tag the full enemy six and get a suggested counter-comp. Character counters came first.</p>
-      </div>`;
-    return;
-  }
+  if (state.tab === "team") { renderTeam(); return; }
 
   if (state.selected) { renderDetail(); } else { renderGrid(); }
 }
@@ -1226,6 +1309,365 @@ function renderDetail() {
   view.querySelector("#next").addEventListener("click", () => { if (state.page < maxPage) { state.page++; render(); } });
   view.querySelectorAll(".card[data-hero]").forEach((b) =>
     b.addEventListener("click", () => pick(b.dataset.hero)));
+}
+
+/* ══════════ VOICE INPUT ══════════ */
+// Speech recognition mangles Marvel names constantly, so matching is alias-driven.
+// Longest aliases match first so "sue storm" lands on Invisible Woman, not Storm.
+const ALIASES = {
+  "Angela": ["angela"],
+  "Captain America": ["captain america", "captain", "cap"],
+  "Devil Dinosaur": ["devil dinosaur", "devil dino", "dinosaur", "dino"],
+  "Doctor Strange": ["doctor strange", "dr strange", "strange"],
+  "Emma Frost": ["emma frost", "emma"],
+  "Groot": ["groot", "grout", "root"],
+  "Hulk": ["hulk", "the hulk"],
+  "Magneto": ["magneto"],
+  "Peni Parker": ["peni parker", "penny parker", "peni", "penny"],
+  "Rogue": ["rogue"],
+  "The Thing": ["the thing", "thing", "ben grimm"],
+  "Thor": ["thor"],
+  "Venom": ["venom"],
+  "Black Cat": ["black cat", "felicia"],
+  "Black Panther": ["black panther", "panther"],
+  "Black Widow": ["black widow", "widow", "natasha"],
+  "Blade": ["blade"],
+  "Cyclops": ["cyclops", "scott summers", "psyclops"],
+  "Daredevil": ["daredevil", "dare devil", "matt murdock"],
+  "Deadpool": ["deadpool", "dead pool", "wade"],
+  "Elsa Bloodstone": ["elsa bloodstone", "elsa", "bloodstone"],
+  "Hawkeye": ["hawkeye", "hawk eye", "hawk i"],
+  "Hela": ["hela", "hella", "heela", "haila", "hala"],
+  "Human Torch": ["human torch", "torch", "johnny storm", "johnny"],
+  "Iron Fist": ["iron fist", "fist"],
+  "Iron Man": ["iron man", "ironman", "tony stark", "tony"],
+  "Magik": ["magik", "magic", "illyana"],
+  "Mister Fantastic": ["mister fantastic", "mr fantastic", "fantastic", "reed"],
+  "Moon Knight": ["moon knight", "moonlight", "moon night", "moonknight"],
+  "Namor": ["namor", "name or", "namour"],
+  "Phoenix": ["phoenix", "jean grey", "jean gray", "jean"],
+  "Psylocke": ["psylocke", "psy lock", "psylock", "silok", "cylock", "sai lock"],
+  "Scarlet Witch": ["scarlet witch", "wanda", "witch", "scarlett witch"],
+  "Spider-Man": ["spider man", "spiderman", "spidey", "peter parker"],
+  "Squirrel Girl": ["squirrel girl", "squirrel"],
+  "Star-Lord": ["star lord", "starlord", "quill"],
+  "Storm": ["storm", "ororo"],
+  "The Punisher": ["the punisher", "punisher", "frank castle", "frank"],
+  "Winter Soldier": ["winter soldier", "bucky"],
+  "Wolverine": ["wolverine", "logan", "wolvie"],
+  "Adam Warlock": ["adam warlock", "adam", "warlock"],
+  "Cloak & Dagger": ["cloak and dagger", "cloak dagger", "cloak", "dagger"],
+  "Gambit": ["gambit", "remy"],
+  "Invisible Woman": ["invisible woman", "sue storm", "invisible", "sue"],
+  "Jeff the Land Shark": ["jeff the land shark", "land shark", "jeff", "shark"],
+  "Loki": ["loki", "low key", "lokey"],
+  "Luna Snow": ["luna snow", "luna"],
+  "Mantis": ["mantis", "mantes"],
+  "Rocket Raccoon": ["rocket raccoon", "rocket", "raccoon"],
+  "Ultron": ["ultron"],
+  "White Fox": ["white fox", "fox"],
+};
+
+// Pre-sort: longest alias first so multi-word names win before single-word fragments
+const ALIAS_LIST = Object.entries(ALIASES)
+  .flatMap(([hero, list]) => list.map((a) => ({ hero, alias: a })))
+  .sort((a, b) => b.alias.length - a.alias.length);
+
+function parseHeroes(transcript) {
+  let text = " " + transcript.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ") + " ";
+  const found = [];
+  for (const { hero, alias } of ALIAS_LIST) {
+    const re = new RegExp("\\b" + alias.replace(/\s+/g, "\\s+") + "\\b");
+    if (re.test(text)) {
+      text = text.replace(re, " "); // consume so fragments can't double-match
+      if (!found.includes(hero)) found.push(hero);
+    }
+  }
+  return found;
+}
+
+let rec = null, listening = false;
+function toggleMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const heard = document.getElementById("heard");
+  if (!SR) {
+    heard.innerHTML = "Voice input isn't supported in this browser — but tap the search box and use your keyboard's mic button instead.";
+    return;
+  }
+  if (listening && rec) { rec.stop(); return; }
+
+  rec = new SR();
+  rec.lang = "en-US";
+  rec.interimResults = true;
+  rec.continuous = false;
+  let finalText = "";
+
+  rec.onstart = () => {
+    listening = true;
+    const btn = document.getElementById("mic");
+    if (btn) { btn.classList.add("live"); btn.textContent = "⏹ Listening…"; }
+    heard.textContent = "Say the enemy heroes — e.g. \u201cSpider-Man, Hela, Luna, Venom\u201d";
+  };
+  rec.onresult = (e) => {
+    let interim = "";
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalText += e.results[i][0].transcript + " ";
+      else interim += e.results[i][0].transcript;
+    }
+    const h = document.getElementById("heard");
+    if (h) h.textContent = "Heard: \u201c" + (finalText + interim).trim() + "\u201d";
+  };
+  rec.onerror = (e) => {
+    const h = document.getElementById("heard");
+    if (h) h.textContent = e.error === "not-allowed"
+      ? "Mic permission denied — allow microphone access for this site in your browser settings, or use the keyboard mic in the search box."
+      : "Didn't catch that — tap the mic and try again.";
+  };
+  rec.onend = () => {
+    listening = false;
+    const matched = parseHeroes(finalText);
+    let added = 0;
+    for (const hero of matched) {
+      if (state.team.length < 6 && !state.team.includes(hero)) { state.team.push(hero); added++; }
+    }
+    state.lastHeard = finalText.trim()
+      ? `Heard: \u201c${finalText.trim()}\u201d — matched <b>${added ? matched.join(", ") : "no hero names"}</b>`
+      : "";
+    render();
+  };
+  rec.start();
+}
+
+/* ══════════ TEAM ANALYZER ══════════ */
+// Playstyle tags used to read what an enemy comp is trying to do
+const TAGS = {
+  "Angela":["brawl","dive"], "Captain America":["dive","brawl"], "Devil Dinosaur":["brawl","dive"],
+  "Doctor Strange":["brawl","shield"], "Emma Frost":["brawl","antidive"], "Groot":["brawl","shield"],
+  "Hulk":["dive","brawl"], "Magneto":["shield","brawl"], "Peni Parker":["antidive","zone"],
+  "Rogue":["dive","air"], "The Thing":["brawl","antidive"], "Thor":["brawl","dive"], "Venom":["dive"],
+  "Black Cat":["dive"], "Black Panther":["dive"], "Black Widow":["poke"], "Blade":["brawl","dive"],
+  "Cyclops":["poke"], "Daredevil":["dive","brawl"], "Deadpool":["dive","brawl"], "Elsa Bloodstone":["brawl"],
+  "Hawkeye":["poke"], "Hela":["poke"], "Human Torch":["air","poke"], "Iron Fist":["dive"],
+  "Iron Man":["air","poke"], "Magik":["dive"], "Mister Fantastic":["brawl"], "Moon Knight":["poke"],
+  "Namor":["poke","antidive"], "Phoenix":["poke"], "Psylocke":["dive"], "Scarlet Witch":["brawl"],
+  "Spider-Man":["dive"], "Squirrel Girl":["poke"], "Star-Lord":["poke"], "Storm":["air","poke"],
+  "The Punisher":["poke"], "Winter Soldier":["poke","brawl"], "Wolverine":["dive"],
+  "Adam Warlock":["sustain"], "Cloak & Dagger":["sustain"], "Gambit":["sustain","poke"],
+  "Invisible Woman":["sustain","antidive"], "Jeff the Land Shark":["sustain"], "Loki":["sustain"],
+  "Luna Snow":["sustain","antidive"], "Mantis":["sustain","antidive"], "Rocket Raccoon":["sustain"],
+  "Ultron":["sustain","air"], "White Fox":["sustain","antidive"],
+};
+
+const ARCHETYPES = {
+  dive: {
+    name: "Dive comp",
+    what: "They want to jump past your front line and collapse on your healers — kills happen in your backline, not at the choke.",
+    plan: "Group tight, save peel cooldowns for the engage, and make their entries painful. Anti-dive zone control and crowd control win this outright.",
+  },
+  poke: {
+    name: "Poke / siege comp",
+    what: "They want to sit at range, chip your team down, and win the fight before it ever starts. They thrive when you walk slowly into their sightlines.",
+    plan: "Shields neutralize their damage while you close distance — or skip the staring contest and dive their angles directly. Don't trade poke with a poke comp.",
+  },
+  brawl: {
+    name: "Brawl deathball",
+    what: "They want to group up and walk through you as one unit, winning extended close-range fights with sustain and raw front-line muscle.",
+    plan: "Don't meet them head-on. Kite, hold range, shred their tanks with percent damage, and punish the clump with big AoE ults.",
+  },
+  air: {
+    name: "Air superiority comp",
+    what: "Multiple fliers want to control the sky and rain damage from angles your team can't comfortably answer.",
+    plan: "Hitscan is non-negotiable — fliers melt against it. Add anti-air tools and force them to ground level where they're weakest.",
+  },
+  sustain: {
+    name: "Sustain / triple-support comp",
+    what: "With three healers, they want to out-last you — your damage gets healed back before kills confirm, and they win on ult economy.",
+    plan: "Stop trickling damage and start bursting. Coordinate ults to break through the healing, dive the supports directly, and win the ult-economy war.",
+  },
+  flex: {
+    name: "Balanced flex comp",
+    what: "No single dominant gameplan — they're running a standard mix and will adapt to whatever you show them.",
+    plan: "No comp-wide trick here, so win the individual matchups: counter their strongest carries directly and play your team's best heroes.",
+  },
+};
+
+function analyzeTeam(team) {
+  const counts = { dive: 0, poke: 0, brawl: 0, air: 0, sustain: 0 };
+  for (const name of team) {
+    for (const t of TAGS[name] || []) if (t in counts) counts[t]++;
+  }
+  // pick the dominant read; sustain needs a true triple-support to trigger
+  const supports = team.filter((n) => heroRole(n) === "S").length;
+  let key = "flex";
+  if (supports >= 3) key = "sustain";
+  else {
+    const order = ["dive", "air", "poke", "brawl"].sort((a, b) => counts[b] - counts[a]);
+    if (counts[order[0]] >= Math.max(2, Math.ceil(team.length / 3))) key = order[0];
+  }
+  // aggregate counters: rank 1 = 3pts, rank 2 = 2pts, rank 3 = 1pt, summed across their picks
+  const scores = { V: {}, D: {}, S: {} };
+  for (const enemy of team) {
+    const c = COUNTERS[enemy];
+    if (!c) continue;
+    for (const r of ["V", "D", "S"]) {
+      c[r].forEach(([name], i) => {
+        if (!scores[r][name]) scores[r][name] = { pts: 0, into: [] };
+        scores[r][name].pts += 3 - i;
+        scores[r][name].into.push(enemy);
+      });
+    }
+  }
+  const ranked = {};
+  for (const r of ["V", "D", "S"]) {
+    ranked[r] = Object.entries(scores[r])
+      .sort((a, b) => b[1].pts - a[1].pts)
+      .map(([name, v]) => ({ name, into: v.into }));
+  }
+  return { arch: ARCHETYPES[key], ranked };
+}
+
+let speaking = false;
+function toggleSpeech(text, btn) {
+  if (!("speechSynthesis" in window)) { btn.textContent = "Voice not supported here"; return; }
+  if (speaking) { speechSynthesis.cancel(); speaking = false; btn.classList.remove("speaking"); btn.textContent = "🔊 Read it to me"; return; }
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 1.05;
+  u.onend = () => { speaking = false; btn.classList.remove("speaking"); btn.textContent = "🔊 Read it to me"; };
+  speaking = true; btn.classList.add("speaking"); btn.textContent = "⏹ Stop";
+  speechSynthesis.speak(u);
+}
+
+function renderTeam() {
+  if (state.teamView === "plan" && state.team.length) { renderPlan(); return; }
+
+  const q = state.teamQuery.trim().toLowerCase();
+  const heroes = HEROES.filter((h) =>
+    (state.teamRoleFilter === "ALL" || h.role === state.teamRoleFilter) &&
+    (!q || h.name.toLowerCase().includes(q)) &&
+    !state.team.includes(h.name)
+  );
+
+  const slots = state.team.map((n) => `
+    <span class="slot" style="border-color:${ROLE[heroRole(n)].color}">
+      ${avaHTML(n, ROLE[heroRole(n)].color)} ${esc(n)}
+      <button class="x" data-remove="${esc(n)}" title="Remove">×</button>
+    </span>`).join("") +
+    Array(Math.max(0, 6 - state.team.length)).fill('<span class="slotEmpty">+</span>').join("");
+
+  const pills = ["ALL", "V", "D", "S"].map((r) => {
+    const on = state.teamRoleFilter === r;
+    const styleOn = on ? `style="background:${r === "ALL" ? "#e9ecf5" : ROLE[r].color}"` : "";
+    const label = r === "ALL" ? "All" : `${ROLE[r].label}<small>${ROLE[r].alt}</small>`;
+    return `<button class="pill ${on ? "on" : ""}" ${styleOn} data-role="${r}">${label}</button>`;
+  }).join("");
+
+  const chips = heroes.map((h) => `
+    <button class="chip" style="border-left-color:${ROLE[h.role].color}" data-hero="${esc(h.name)}">
+      ${avaHTML(h.name, ROLE[h.role].color)}
+      <div>
+        <div class="chipName">${esc(h.name)}${h.flex ? '<span class="flexBadge">FLEX</span>' : ""}</div>
+        <div class="chipRole" style="color:${ROLE[h.role].color}">${ROLE[h.role].label}</div>
+      </div>
+    </button>`).join("");
+
+  view.innerHTML = `
+    <div class="tray">
+      <div class="trayLabel">Enemy team — tap heroes below or speak them (${state.team.length}/6)</div>
+      ${slots}
+      <button class="micBtn" id="mic" title="Speak the enemy team">🎤 Voice</button>
+      <button class="analyzeBtn" id="analyze" ${state.team.length === 0 ? "disabled" : ""}>Analyze</button>
+      <div class="heard" id="heard">${state.lastHeard || ""}</div>
+    </div>
+    <div class="toolbar">
+      ${pills}
+      <input class="search" id="tsearch" placeholder="Search hero…" value="${esc(state.teamQuery)}">
+    </div>
+    <div class="grid">${chips}</div>`;
+
+  view.querySelector("#mic").addEventListener("click", toggleMic);
+
+  view.querySelectorAll(".pill").forEach((b) =>
+    b.addEventListener("click", () => { state.teamRoleFilter = b.dataset.role; render(); }));
+  view.querySelectorAll(".chip").forEach((b) =>
+    b.addEventListener("click", () => {
+      if (state.team.length < 6) { state.team.push(b.dataset.hero); render(); }
+    }));
+  view.querySelectorAll(".x").forEach((b) =>
+    b.addEventListener("click", () => {
+      state.team = state.team.filter((n) => n !== b.dataset.remove); render();
+    }));
+  view.querySelector("#analyze").addEventListener("click", () => {
+    state.teamView = "plan"; state.teamPage = 0; render();
+  });
+  const ts = view.querySelector("#tsearch");
+  ts.addEventListener("input", (e) => {
+    state.teamQuery = e.target.value;
+    const pos = e.target.selectionStart;
+    render();
+    const s2 = view.querySelector("#tsearch");
+    s2.focus(); s2.setSelectionRange(pos, pos);
+  });
+}
+
+function renderPlan() {
+  const { arch, ranked } = analyzeTeam(state.team);
+  const maxPage = Math.max(ranked.V.length, ranked.D.length, ranked.S.length, 1) - 1;
+  state.teamPage = Math.min(state.teamPage, maxPage);
+
+  const topNames = ["V","D","S"].map((r) => ranked[r][0] ? ranked[r][0].name : null).filter(Boolean);
+  const speech = `${arch.name}. ${arch.what} ${arch.plan} Top picks: ${topNames.join(", ")}.`;
+
+  const cards = ["V", "D", "S"].map((r) => {
+    const entry = ranked[r][state.teamPage];
+    if (!entry) return `
+      <div class="card dead" style="border-top-color:${ROLE[r].color}">
+        <div class="cardRole" style="color:${ROLE[r].color}">${ROLE[r].label}</div>
+        <div class="why">No more ranked picks in this role.</div>
+      </div>`;
+    return `
+      <button class="card" data-hero="${esc(entry.name)}" title="See counters for ${esc(entry.name)}"
+        style="border-top-color:${ROLE[r].color};background:linear-gradient(180deg, ${ROLE[r].dim}, #11162b 55%)">
+        <div class="cardRole" style="color:${ROLE[r].color}">${ROLE[r].label} pick</div>
+        <div class="cardHero">
+          ${avaHTML(entry.name, ROLE[r].color)}
+          <div class="cardName">${esc(entry.name)}</div>
+        </div>
+        <div class="strongInto">Strong into: ${entry.into.map(esc).join(", ")}</div>
+      </button>`;
+  }).join("");
+
+  view.innerHTML = `
+    <button class="back" id="backEdit">← Edit enemy team</button>
+    <div class="plan">
+      <div class="planHead">
+        <div class="planTitle">${arch.name}</div>
+        <button class="speakBtn" id="speak">🔊 Read it to me</button>
+      </div>
+      <div class="planBody">
+        <b>What they're trying to do:</b> ${arch.what}<br><br>
+        <b>Your game plan:</b> ${arch.plan}
+      </div>
+    </div>
+    <div class="pager">
+      <button class="navBtn" id="prev" ${state.teamPage === 0 ? "disabled" : ""}>← Prev</button>
+      <div class="pagerLabel">Counter rank <b>#${state.teamPage + 1}</b> of ${maxPage + 1}</div>
+      <button class="navBtn" id="next" ${state.teamPage >= maxPage ? "disabled" : ""}>Next →</button>
+    </div>
+    <div class="cards">${cards}</div>
+    <div class="hint">Picks are scored across the whole enemy team — a hero that counters three of their picks outranks one that hard-counters a single pick. Tap a card to see that hero's own matchups.</div>`;
+
+  view.querySelector("#backEdit").addEventListener("click", () => {
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+    speaking = false;
+    state.teamView = "pick"; render();
+  });
+  view.querySelector("#speak").addEventListener("click", (e) => toggleSpeech(speech, e.currentTarget));
+  view.querySelector("#prev").addEventListener("click", () => { if (state.teamPage > 0) { state.teamPage--; render(); } });
+  view.querySelector("#next").addEventListener("click", () => { if (state.teamPage < maxPage) { state.teamPage++; render(); } });
+  view.querySelectorAll(".card[data-hero]").forEach((b) =>
+    b.addEventListener("click", () => {
+      state.tab = "solo"; pick(b.dataset.hero);
+    }));
 }
 
 render();
