@@ -209,6 +209,27 @@
   }
   .heard b { color: #4ADEB8; font-style: normal; }
   @media (prefers-reduced-motion: reduce) { .micBtn.live { animation: none; } }
+  .clearBtn {
+    padding: 9px 16px; cursor: pointer; border: 1px solid #2a3152; flex: none;
+    background: transparent; color: #8b93ad; border-radius: 999px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px;
+    letter-spacing: .08em; text-transform: uppercase; transition: all .15s;
+  }
+  .clearBtn:hover { color: #FF5470; border-color: #FF5470; }
+  .tierBadge {
+    margin-left: auto; flex: none; width: 20px; height: 20px; display: grid;
+    place-items: center; border: 1.5px solid; border-radius: 5px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px;
+  }
+  .weakBadge {
+    flex: none; margin-left: 6px; padding: 2px 6px; border-radius: 4px;
+    background: rgba(93,102,133,.22); color: #8b93ad;
+    font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  }
+  .metaNote {
+    font-size: 11.5px; color: #5d6685; margin: 2px 0 14px; line-height: 1.5;
+  }
+  .metaNote b { color: #8b93ad; }
   @media (max-width: 640px) {
     .cards { grid-template-columns: 1fr; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
@@ -222,6 +243,7 @@
 <div class="shell">
   <div class="brand">Rivals <em>Counter Lab</em></div>
   <div class="sub">Season 8.5 · 51 heroes · Cyclops is live — matchups provisional until data settles</div>
+  <div class="metaNote">Counter order is matchup-first, tie-broken by current win-rate tier (<b>S</b> strongest → <b>F</b> weakest, per Counterwatch, all ranks, updated Jun 19). A <b>weak pick</b> badge means the hero counters the target on paper but is underperforming this patch.</div>
   <div class="mainTabs">
     <button class="mainTab on" id="tabSolo">Character Counters</button>
     <button class="mainTab" id="tabTeam">Team Counters</button>
@@ -1173,6 +1195,23 @@ const state = { tab: "solo", roleFilter: "ALL", selected: null, page: 0, query: 
 
 const heroRole = (name) => { const h = HEROES.find((x) => x.name === name); return h ? h.role : "D"; };
 
+// ─── Meta tier (Counterwatch shrunk win rate, all ranks, S8.5 — updated Jun 19 2026) ───
+// Used ONLY as a tie-breaker between heroes that already counter the enemy, and to
+// flag picks that are weak in the current meta. Matchup data still decides who counters whom.
+const TIER = {
+  "Peni Parker":"S","Magik":"S","Rocket Raccoon":"S","Devil Dinosaur":"S","Ultron":"S","Daredevil":"S",
+  "Mantis":"A","Cyclops":"A","Hulk":"A","Black Panther":"A","Black Cat":"A","White Fox":"A","Captain America":"A","Storm":"A",
+  "Blade":"B","Spider-Man":"B","Mister Fantastic":"B","Rogue":"B","Iron Fist":"B","Star-Lord":"B","Iron Man":"B","Hela":"B","Angela":"B",
+  "Doctor Strange":"C","Thor":"C","Luna Snow":"C","Moon Knight":"C","Wolverine":"C","Deadpool":"C","Invisible Woman":"C","Psylocke":"C","Venom":"C","Winter Soldier":"C","Scarlet Witch":"C","The Punisher":"C",
+  "Adam Warlock":"D","Emma Frost":"D","Groot":"D","Gambit":"D","The Thing":"D","Cloak & Dagger":"D","Squirrel Girl":"D","Phoenix":"D","Jeff the Land Shark":"D","Namor":"D","Elsa Bloodstone":"D","Loki":"D",
+  "Magneto":"F","Hawkeye":"F","Human Torch":"F","Black Widow":"F",
+};
+// "Hulk" maps to Counterwatch's "Bruce Banner" A-tier entry.
+const TIER_RANK = { S:0, A:1, B:2, C:3, D:4, F:5 };
+const TIER_COLOR = { S:"#FF5470", A:"#FFB454", B:"#4ADEB8", C:"#7d86a3", D:"#7d86a3", F:"#5d6685" };
+const tierOf = (name) => TIER[name] || "C";
+const isWeakMeta = (name) => TIER_RANK[tierOf(name)] >= TIER_RANK["D"]; // D or F
+
 const initials = (name) => name
   .replace("The ", "")
   .split(/[\s&-]+/)
@@ -1260,10 +1299,30 @@ function renderGrid() {
   });
 }
 
+// Gentle tier-aware reorder: matchup order is primary; a hero can rise at most one
+// slot, and only when it's 2+ full tiers stronger than the hero above it. Hard
+// counters never get displaced — this only breaks near-ties toward meta strength.
+function tierAdjust(list) {
+  const arr = list.map(([name, why], i) => ({ name, why, base: i }));
+  for (let i = 1; i < arr.length; i++) {
+    const gap = TIER_RANK[tierOf(arr[i - 1].name)] - TIER_RANK[tierOf(arr[i].name)];
+    if (gap >= 2) { const t = arr[i - 1]; arr[i - 1] = arr[i]; arr[i] = t; }
+  }
+  return arr.map((x) => [x.name, x.why]);
+}
+
+const tierBadge = (name) => {
+  const t = tierOf(name);
+  const weak = isWeakMeta(name);
+  return `<span class="tierBadge" style="color:${TIER_COLOR[t]};border-color:${TIER_COLOR[t]}">${t}</span>` +
+    (weak ? `<span class="weakBadge" title="Low win rate in the current patch">weak pick</span>` : "");
+};
+
 function renderDetail() {
   const name = state.selected;
   const role = heroRole(name);
-  const data = COUNTERS[name];
+  const raw = COUNTERS[name];
+  const data = { V: tierAdjust(raw.V), D: tierAdjust(raw.D), S: tierAdjust(raw.S) };
   const maxPage = Math.max(data.V.length, data.D.length, data.S.length) - 1;
   state.page = Math.min(state.page, maxPage);
 
@@ -1282,6 +1341,7 @@ function renderDetail() {
         <div class="cardHero">
           ${avaHTML(cname, ROLE[r].color)}
           <div class="cardName">${esc(cname)}</div>
+          ${tierBadge(cname)}
         </div>
         <div class="why">${esc(why)}</div>
       </button>`;
@@ -1302,7 +1362,7 @@ function renderDetail() {
       <button class="navBtn" id="next" ${state.page >= maxPage ? "disabled" : ""}>Next →</button>
     </div>
     <div class="cards">${cards}</div>
-    <div class="hint">Tip: tap any counter card to jump to that hero's own counters. Rankings blend community matchup data, counter guides, and live win-rate trackers — matchups shift each balance patch.</div>`;
+    <div class="hint">Tip: tap any counter card to jump to that hero's own counters. Order is by matchup strength first, nudged by current win-rate tier when matchups are close. The letter badge is the hero's meta tier (S best, F worst); "weak pick" flags a counter that works on paper but is underperforming this patch — fine in a pinch, but there's usually a stronger option.</div>`;
 
   view.querySelector("#back").addEventListener("click", () => { state.selected = null; render(); });
   view.querySelector("#prev").addEventListener("click", () => { if (state.page > 0) { state.page--; render(); } });
@@ -1520,8 +1580,13 @@ function analyzeTeam(team) {
   const ranked = {};
   for (const r of ["V", "D", "S"]) {
     ranked[r] = Object.entries(scores[r])
-      .sort((a, b) => b[1].pts - a[1].pts)
-      .map(([name, v]) => ({ name, into: v.into }));
+      .map(([name, v]) => {
+        // tier bonus is small (max +0.5) so it only breaks ties between picks
+        // that counter a similar number of the enemy's heroes — never overrides coverage
+        const tierBonus = (5 - TIER_RANK[tierOf(name)]) * 0.1;
+        return { name, into: v.into, score: v.pts + tierBonus };
+      })
+      .sort((a, b) => b.score - a.score);
   }
   return { arch: ARCHETYPES[key], ranked };
 }
@@ -1575,6 +1640,7 @@ function renderTeam() {
       <div class="trayLabel">Enemy team — tap heroes below or speak them (${state.team.length}/6)</div>
       ${slots}
       <button class="micBtn" id="mic" title="Speak the enemy team">🎤 Voice</button>
+      ${state.team.length ? '<button class="clearBtn" id="clear" title="Clear the enemy team">Clear</button>' : ""}
       <button class="analyzeBtn" id="analyze" ${state.team.length === 0 ? "disabled" : ""}>Analyze</button>
       <div class="heard" id="heard">${state.lastHeard || ""}</div>
     </div>
@@ -1585,6 +1651,13 @@ function renderTeam() {
     <div class="grid">${chips}</div>`;
 
   view.querySelector("#mic").addEventListener("click", toggleMic);
+  const clearBtn = view.querySelector("#clear");
+  if (clearBtn) clearBtn.addEventListener("click", () => {
+    if (listening && rec) rec.stop();
+    state.team = [];
+    state.lastHeard = "";
+    render();
+  });
 
   view.querySelectorAll(".pill").forEach((b) =>
     b.addEventListener("click", () => { state.teamRoleFilter = b.dataset.role; render(); }));
@@ -1631,6 +1704,7 @@ function renderPlan() {
         <div class="cardHero">
           ${avaHTML(entry.name, ROLE[r].color)}
           <div class="cardName">${esc(entry.name)}</div>
+          ${tierBadge(entry.name)}
         </div>
         <div class="strongInto">Strong into: ${entry.into.map(esc).join(", ")}</div>
       </button>`;
