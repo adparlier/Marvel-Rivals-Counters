@@ -243,7 +243,7 @@
 <div class="shell">
   <div class="brand">Rivals <em>Counter Lab</em></div>
   <div class="sub">Season 8.5 · 51 heroes · Cyclops is live — matchups provisional until data settles</div>
-  <div class="metaNote">Counter order is matchup-first, tie-broken by current win-rate tier (<b>S</b> strongest → <b>F</b> weakest, per Counterwatch, all ranks, updated Jun 19). A <b>weak pick</b> badge means the hero counters the target on paper but is underperforming this patch.</div>
+  <div class="metaNote">Counter order blends matchup strength with current win-rate tier (<b>S</b> strongest → <b>F</b> weakest, per Counterwatch, all ranks, updated Jun 19) — a pick has to counter the target and be performing well to lead. A <b>weak pick</b> badge means the hero counters on paper but is underperforming this patch.</div>
   <div class="mainTabs">
     <button class="mainTab on" id="tabSolo">Character Counters</button>
     <button class="mainTab" id="tabTeam">Team Counters</button>
@@ -1299,16 +1299,24 @@ function renderGrid() {
   });
 }
 
-// Gentle tier-aware reorder: matchup order is primary; a hero can rise at most one
-// slot, and only when it's 2+ full tiers stronger than the hero above it. Hard
-// counters never get displaced — this only breaks near-ties toward meta strength.
+// Balanced blend: each counter gets a matchup score (rank 1 = 3, rank 2 = 2, rank 3 = 1)
+// and a meta score from its current tier (S = 2.5 → F = 0). Both are weighted so a hero
+// must be a strong matchup AND in good standing to lead — but a top paper-counter still
+// stays in the running rather than vanishing. Matchup is weighted a touch higher so a
+// hard counter is never buried by a hero that doesn't actually beat the target.
+const TIER_SCORE = { S: 2.5, A: 2.0, B: 1.5, C: 1.0, D: 0.5, F: 0 };
+const MATCHUP_W = 1.15;
+const META_W = 1.0;
+
 function tierAdjust(list) {
-  const arr = list.map(([name, why], i) => ({ name, why, base: i }));
-  for (let i = 1; i < arr.length; i++) {
-    const gap = TIER_RANK[tierOf(arr[i - 1].name)] - TIER_RANK[tierOf(arr[i].name)];
-    if (gap >= 2) { const t = arr[i - 1]; arr[i - 1] = arr[i]; arr[i] = t; }
-  }
-  return arr.map((x) => [x.name, x.why]);
+  return list
+    .map(([name, why], i) => {
+      const matchup = (3 - i) * MATCHUP_W;          // 3,2,1 by original paper rank
+      const meta = TIER_SCORE[tierOf(name)] * META_W;
+      return { name, why, score: matchup + meta, base: i };
+    })
+    .sort((a, b) => b.score - a.score || a.base - b.base)
+    .map((x) => [x.name, x.why]);
 }
 
 const tierBadge = (name) => {
@@ -1362,7 +1370,7 @@ function renderDetail() {
       <button class="navBtn" id="next" ${state.page >= maxPage ? "disabled" : ""}>Next →</button>
     </div>
     <div class="cards">${cards}</div>
-    <div class="hint">Tip: tap any counter card to jump to that hero's own counters. Order is by matchup strength first, nudged by current win-rate tier when matchups are close. The letter badge is the hero's meta tier (S best, F worst); "weak pick" flags a counter that works on paper but is underperforming this patch — fine in a pinch, but there's usually a stronger option.</div>`;
+    <div class="hint">Tip: tap any counter card to jump to that hero's own counters. Order blends matchup strength with current win-rate tier — a pick has to counter the target and be performing well to lead. The letter badge is the hero's meta tier (S best, F worst); "weak pick" flags a counter that works on paper but is underperforming this patch — fine in a pinch, but there's usually a stronger option.</div>`;
 
   view.querySelector("#back").addEventListener("click", () => { state.selected = null; render(); });
   view.querySelector("#prev").addEventListener("click", () => { if (state.page > 0) { state.page--; render(); } });
@@ -1447,14 +1455,19 @@ function parseHeroes(transcript) {
 }
 
 let rec = null, listening = false;
+function setHeard(text, html) {
+  const h = document.getElementById("heard");
+  if (!h) return;
+  if (html) h.innerHTML = text; else h.textContent = text;
+}
+
 function toggleMic() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const heard = document.getElementById("heard");
   if (!SR) {
-    heard.innerHTML = "Voice input isn't supported in this browser — but tap the search box and use your keyboard's mic button instead.";
+    setHeard("Voice input isn't supported in this browser — but tap the search box and use your keyboard's mic button instead.", true);
     return;
   }
-  if (listening && rec) { rec.stop(); return; }
+  if (listening && rec) { try { rec.stop(); } catch (e) {} return; }
 
   rec = new SR();
   rec.lang = "en-US";
@@ -1466,7 +1479,7 @@ function toggleMic() {
     listening = true;
     const btn = document.getElementById("mic");
     if (btn) { btn.classList.add("live"); btn.textContent = "⏹ Listening…"; }
-    heard.textContent = "Say the enemy heroes — e.g. \u201cSpider-Man, Hela, Luna, Venom\u201d";
+    setHeard("Say the enemy heroes — e.g. \u201cSpider-Man, Hela, Luna, Venom\u201d");
   };
   rec.onresult = (e) => {
     let interim = "";
@@ -1474,14 +1487,15 @@ function toggleMic() {
       if (e.results[i].isFinal) finalText += e.results[i][0].transcript + " ";
       else interim += e.results[i][0].transcript;
     }
-    const h = document.getElementById("heard");
-    if (h) h.textContent = "Heard: \u201c" + (finalText + interim).trim() + "\u201d";
+    setHeard("Heard: \u201c" + (finalText + interim).trim() + "\u201d");
   };
   rec.onerror = (e) => {
-    const h = document.getElementById("heard");
-    if (h) h.textContent = e.error === "not-allowed"
+    listening = false;
+    const btn = document.getElementById("mic");
+    if (btn) { btn.classList.remove("live"); btn.textContent = "🎤 Voice"; }
+    setHeard(e.error === "not-allowed" || e.error === "service-not-allowed"
       ? "Mic permission denied — allow microphone access for this site in your browser settings, or use the keyboard mic in the search box."
-      : "Didn't catch that — tap the mic and try again.";
+      : "Didn't catch that — tap the mic and try again.", false);
   };
   rec.onend = () => {
     listening = false;
@@ -1495,7 +1509,13 @@ function toggleMic() {
       : "";
     render();
   };
-  rec.start();
+  try {
+    rec.start();
+  } catch (e) {
+    // calling start() twice in quick succession throws on some browsers — reset cleanly
+    listening = false;
+    setHeard("Didn't catch that — tap the mic and try again.", false);
+  }
 }
 
 /* ══════════ TEAM ANALYZER ══════════ */
@@ -1581,9 +1601,9 @@ function analyzeTeam(team) {
   for (const r of ["V", "D", "S"]) {
     ranked[r] = Object.entries(scores[r])
       .map(([name, v]) => {
-        // tier bonus is small (max +0.5) so it only breaks ties between picks
-        // that counter a similar number of the enemy's heroes — never overrides coverage
-        const tierBonus = (5 - TIER_RANK[tierOf(name)]) * 0.1;
+        // coverage (how many enemies this counters) leads; tier adds a real but
+        // secondary pull so a strong, in-meta hero wins ties over a weak paper counter
+        const tierBonus = TIER_SCORE[tierOf(name)] * 0.6;
         return { name, into: v.into, score: v.pts + tierBonus };
       })
       .sort((a, b) => b.score - a.score);
