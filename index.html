@@ -230,6 +230,36 @@
     font-size: 11.5px; color: #5d6685; margin: 2px 0 14px; line-height: 1.5;
   }
   .metaNote b { color: #8b93ad; }
+  .banResults { margin-bottom: 6px; }
+  .banHeading {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px;
+    letter-spacing: .1em; text-transform: uppercase; color: #8b93ad; margin-bottom: 10px;
+  }
+  .banCard {
+    display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px;
+    margin-bottom: 8px; background: #11162b; border: 1px solid #232a49;
+    border-radius: 10px; cursor: pointer; text-align: left; color: #e9ecf5;
+    transition: transform .1s, border-color .15s;
+  }
+  .banCard:hover { transform: translateY(-1px); border-color: #3a4470; }
+  .banRank {
+    flex: none; width: 24px; font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 20px; color: #5d6685; text-align: center;
+  }
+  .banInfo { flex: 1; min-width: 0; }
+  .banName {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px;
+    letter-spacing: .03em; text-transform: uppercase; display: flex; align-items: center; gap: 6px;
+  }
+  .banWhy { font-size: 12.5px; color: #aab2cc; line-height: 1.4; margin-top: 2px; }
+  .banTag {
+    flex: none; padding: 3px 9px; border: 1px solid; border-radius: 999px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 10px;
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+  @media (max-width: 640px) {
+    .banTag { display: none; }
+  }
   @media (max-width: 640px) {
     .cards { grid-template-columns: 1fr; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
@@ -246,6 +276,7 @@
   <div class="metaNote">Counter order blends matchup strength with current win-rate tier (<b>S</b> strongest → <b>F</b> weakest, per Counterwatch, all ranks, updated Jun 19) — a pick has to counter the target and be performing well to lead. A <b>weak pick</b> badge means the hero counters on paper but is underperforming this patch.</div>
   <div class="mainTabs">
     <button class="mainTab on" id="tabSolo">Character Counters</button>
+    <button class="mainTab" id="tabBans">Ban Helper</button>
     <button class="mainTab" id="tabTeam">Team Counters</button>
   </div>
   <div id="view"></div>
@@ -1191,7 +1222,7 @@ const ROLE = {
   S: { label: "Strategist", alt: "Healer", color: "#4ADEB8", dim: "rgba(74,222,184,0.14)" },
 };
 
-const state = { tab: "solo", roleFilter: "ALL", selected: null, page: 0, query: "", team: [], teamView: "pick", teamPage: 0, teamRoleFilter: "ALL", teamQuery: "" };
+const state = { tab: "solo", roleFilter: "ALL", selected: null, page: 0, query: "", team: [], teamView: "pick", teamPage: 0, teamRoleFilter: "ALL", teamQuery: "", banComp: [], banRoleFilter: "ALL", banQuery: "" };
 
 const heroRole = (name) => { const h = HEROES.find((x) => x.name === name); return h ? h.role : "D"; };
 
@@ -1211,6 +1242,38 @@ const TIER_RANK = { S:0, A:1, B:2, C:3, D:4, F:5 };
 const TIER_COLOR = { S:"#FF5470", A:"#FFB454", B:"#4ADEB8", C:"#7d86a3", D:"#7d86a3", F:"#5d6685" };
 const tierOf = (name) => TIER[name] || "C";
 const isWeakMeta = (name) => TIER_RANK[tierOf(name)] >= TIER_RANK["D"]; // D or F
+
+// ─── Ban priority (S8.5 consensus across allthings.how, Boostmatch, Beebom/RivalsTracker
+// ban rates, updated mid-Jun 2026). This is "how oppressive / frustrating to face" — a
+// separate axis from raw tier. High = the hero swings games or is miserable to play against.
+// Scale 0–10. Used alongside how hard a hero counters YOUR planned comp.
+const BAN_PRIORITY = {
+  "Gambit": 9, "Phoenix": 9, "Cyclops": 9, "Star-Lord": 8, "Invisible Woman": 8,
+  "Elsa Bloodstone": 8, "Devil Dinosaur": 8, "Venom": 7, "Daredevil": 7, "Peni Parker": 7,
+  "Magik": 6, "Emma Frost": 6, "Rocket Raccoon": 6, "Hela": 5, "Iron Fist": 5,
+  "Black Panther": 5, "Spider-Man": 5, "Psylocke": 4, "Scarlet Witch": 4, "Hawkeye": 4,
+  "Wolverine": 4, "Storm": 3, "Mantis": 3, "Luna Snow": 3,
+};
+const banPriorityOf = (name) => BAN_PRIORITY[name] || 2;
+
+// Reverse the counter data: for a planned hero, who shows up as a counter TO them?
+// Returns a map of counter-name -> how hard (rank1=3,rank2=2,rank3=1), summed if a hero
+// counters several of your picks.
+function threatsToComp(comp) {
+  const threat = {};
+  for (const mine of comp) {
+    const c = COUNTERS[mine];
+    if (!c) continue;
+    for (const r of ["V", "D", "S"]) {
+      c[r].forEach(([name], i) => {
+        if (!threat[name]) threat[name] = { weight: 0, into: [] };
+        threat[name].weight += 3 - i;
+        if (!threat[name].into.includes(mine)) threat[name].into.push(mine);
+      });
+    }
+  }
+  return threat;
+}
 
 const initials = (name) => name
   .replace("The ", "")
@@ -1237,17 +1300,21 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
 
 const view = document.getElementById("view");
 const tabSolo = document.getElementById("tabSolo");
+const tabBans = document.getElementById("tabBans");
 const tabTeam = document.getElementById("tabTeam");
 
-tabSolo.addEventListener("click", () => { state.tab = "solo"; render(); });
-tabTeam.addEventListener("click", () => { state.tab = "team"; render(); });
+tabSolo.addEventListener("click", () => { state.tab = "solo"; state.lastHeard = ""; render(); });
+tabBans.addEventListener("click", () => { state.tab = "bans"; state.lastHeard = ""; render(); });
+tabTeam.addEventListener("click", () => { state.tab = "team"; state.lastHeard = ""; render(); });
 
 function pick(name) { state.selected = name; state.page = 0; render(); window.scrollTo({ top: 0 }); }
 
 function render() {
   tabSolo.classList.toggle("on", state.tab === "solo");
+  tabBans.classList.toggle("on", state.tab === "bans");
   tabTeam.classList.toggle("on", state.tab === "team");
 
+  if (state.tab === "bans") { renderBans(); return; }
   if (state.tab === "team") { renderTeam(); return; }
 
   if (state.selected) { renderDetail(); } else { renderGrid(); }
@@ -1500,9 +1567,10 @@ function toggleMic() {
   rec.onend = () => {
     listening = false;
     const matched = parseHeroes(finalText);
+    const targetKey = state.tab === "bans" ? "banComp" : "team";
     let added = 0;
     for (const hero of matched) {
-      if (state.team.length < 6 && !state.team.includes(hero)) { state.team.push(hero); added++; }
+      if (state[targetKey].length < 6 && !state[targetKey].includes(hero)) { state[targetKey].push(hero); added++; }
     }
     state.lastHeard = finalText.trim()
       ? `Heard: \u201c${finalText.trim()}\u201d — matched <b>${added ? matched.join(", ") : "no hero names"}</b>`
@@ -1762,6 +1830,129 @@ function renderPlan() {
     b.addEventListener("click", () => {
       state.tab = "solo"; pick(b.dataset.hero);
     }));
+}
+
+/* ══════════ BAN HELPER ══════════ */
+// Blends two signals equally: how oppressive a hero is in the current meta (BAN_PRIORITY)
+// and how hard it counters the comp you're planning to run (threatsToComp). A hero that's
+// both a meta menace AND a hard counter to your plan rises to the top. With no comp entered,
+// it falls back to a pure meta ban list.
+function banRecommendations(comp) {
+  const threat = threatsToComp(comp);
+  const maxThreat = Math.max(1, ...Object.values(threat).map((t) => t.weight));
+  const compSet = new Set(comp);
+  const recs = HEROES
+    .filter((h) => !compSet.has(h.name)) // never suggest banning your own pick
+    .map((h) => {
+      const meta = banPriorityOf(h.name);          // 0–10
+      const t = threat[h.name];
+      const compScore = t ? (t.weight / maxThreat) * 10 : 0; // 0–10 normalized
+      // equal weight when a comp is entered; pure meta when it isn't
+      const score = comp.length ? meta * 0.5 + compScore * 0.5 : meta;
+      let why, tag;
+      if (comp.length && t && meta >= 6) { tag = "both"; why = `Top meta threat <i>and</i> hard-counters your ${t.into.join(", ")}`; }
+      else if (comp.length && t) { tag = "comp"; why = `Counters your ${t.into.join(", ")}`; }
+      else if (meta >= 7) { tag = "meta"; why = "One of the strongest, most game-swinging picks this patch"; }
+      else { tag = "meta"; why = "Solid meta-strength ban"; }
+      return { name: h.name, role: h.role, score, tag, why, counters: t ? t.into : [] };
+    })
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return recs;
+}
+
+const TAG_LABEL = { both: "Meta + counter", comp: "Counters your comp", meta: "Meta threat" };
+const TAG_COLOR = { both: "#FF5470", comp: "#4ADEB8", meta: "#FFB454" };
+
+function renderBans() {
+  const q = state.banQuery.trim().toLowerCase();
+  const heroes = HEROES.filter((h) =>
+    (state.banRoleFilter === "ALL" || h.role === state.banRoleFilter) &&
+    (!q || h.name.toLowerCase().includes(q)) &&
+    !state.banComp.includes(h.name)
+  );
+
+  const slots = state.banComp.map((n) => `
+    <span class="slot" style="border-color:${ROLE[heroRole(n)].color}">
+      ${avaHTML(n, ROLE[heroRole(n)].color)} ${esc(n)}
+      <button class="x" data-remove="${esc(n)}" title="Remove">×</button>
+    </span>`).join("") +
+    Array(Math.max(0, 6 - state.banComp.length)).fill('<span class="slotEmpty">+</span>').join("");
+
+  const pills = ["ALL", "V", "D", "S"].map((r) => {
+    const on = state.banRoleFilter === r;
+    const styleOn = on ? `style="background:${r === "ALL" ? "#e9ecf5" : ROLE[r].color}"` : "";
+    const label = r === "ALL" ? "All" : `${ROLE[r].label}<small>${ROLE[r].alt}</small>`;
+    return `<button class="pill ${on ? "on" : ""}" ${styleOn} data-role="${r}">${label}</button>`;
+  }).join("");
+
+  const chips = heroes.map((h) => `
+    <button class="chip" style="border-left-color:${ROLE[h.role].color}" data-hero="${esc(h.name)}">
+      ${avaHTML(h.name, ROLE[h.role].color)}
+      <div>
+        <div class="chipName">${esc(h.name)}${h.flex ? '<span class="flexBadge">FLEX</span>' : ""}</div>
+        <div class="chipRole" style="color:${ROLE[h.role].color}">${ROLE[h.role].label}</div>
+      </div>
+    </button>`).join("");
+
+  const recs = banRecommendations(state.banComp).slice(0, 6);
+  const recCards = recs.map((r, i) => `
+    <button class="banCard" data-hero="${esc(r.name)}" title="See counters for ${esc(r.name)}">
+      <div class="banRank">${i + 1}</div>
+      ${avaHTML(r.name, ROLE[r.role].color)}
+      <div class="banInfo">
+        <div class="banName">${esc(r.name)} ${tierBadge(r.name)}</div>
+        <div class="banWhy">${r.why}</div>
+      </div>
+      <span class="banTag" style="color:${TAG_COLOR[r.tag]};border-color:${TAG_COLOR[r.tag]}">${TAG_LABEL[r.tag]}</span>
+    </button>`).join("");
+
+  const heading = state.banComp.length
+    ? `Recommended bans for your comp (${state.banComp.length}/6 planned)`
+    : "Top meta bans this patch";
+
+  view.innerHTML = `
+    <div class="tray">
+      <div class="trayLabel">Your planned comp — tap to add or speak what your group is running (${state.banComp.length}/6). Leave empty for a pure meta ban list.</div>
+      ${slots}
+      <button class="micBtn" id="mic" title="Speak your planned comp">🎤 Voice</button>
+      ${state.banComp.length ? '<button class="clearBtn" id="banClear" title="Clear your comp">Clear</button>' : ""}
+      <div class="heard" id="heard">${state.lastHeard || ""}</div>
+    </div>
+    <div class="banResults">
+      <div class="banHeading">${heading}</div>
+      ${recCards}
+    </div>
+    <div class="hint" style="margin-bottom:16px">Bans blend two things equally: how oppressive a hero is this patch and how hard it counters the comp you're planning. <span style="color:${TAG_COLOR.both}">Meta + counter</span> picks are the clearest bans. Tap any card to see that hero's own counters. Ban data reflects high-rank consensus and shifts each patch.</div>
+    <div class="toolbar">
+      ${pills}
+      <input class="search" id="bsearch" placeholder="Search hero…" value="${esc(state.banQuery)}">
+    </div>
+    <div class="grid">${chips}</div>`;
+
+  view.querySelectorAll(".pill").forEach((b) =>
+    b.addEventListener("click", () => { state.banRoleFilter = b.dataset.role; render(); }));
+  view.querySelectorAll(".chip").forEach((b) =>
+    b.addEventListener("click", () => {
+      if (state.banComp.length < 6) { state.banComp.push(b.dataset.hero); render(); }
+    }));
+  view.querySelectorAll(".x").forEach((b) =>
+    b.addEventListener("click", () => {
+      state.banComp = state.banComp.filter((n) => n !== b.dataset.remove); render();
+    }));
+  const bclear = view.querySelector("#banClear");
+  if (bclear) bclear.addEventListener("click", () => { state.banComp = []; state.lastHeard = ""; render(); });
+  view.querySelector("#mic").addEventListener("click", toggleMic);
+  view.querySelectorAll(".banCard").forEach((b) =>
+    b.addEventListener("click", () => { state.tab = "solo"; pick(b.dataset.hero); }));
+  const bs = view.querySelector("#bsearch");
+  bs.addEventListener("input", (e) => {
+    state.banQuery = e.target.value;
+    const pos = e.target.selectionStart;
+    render();
+    const s2 = view.querySelector("#bsearch");
+    s2.focus(); s2.setSelectionRange(pos, pos);
+  });
 }
 
 render();
