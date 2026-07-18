@@ -230,6 +230,43 @@
     font-size: 11.5px; color: #5d6685; margin: 2px 0 14px; line-height: 1.5;
   }
   .metaNote b { color: #8b93ad; }
+  .tuWrap { display: flex; align-items: stretch; gap: 8px; margin-bottom: 12px; }
+  .tuArrow {
+    flex: none; width: 34px; cursor: pointer; border: 1px solid #2a3152;
+    background: #11162b; color: #8b93ad; border-radius: 8px; font-size: 18px;
+    transition: all .15s;
+  }
+  .tuArrow:hover:not(:disabled) { color: #FFB454; border-color: #FFB454; }
+  .tuArrow:disabled { opacity: .25; cursor: default; }
+  .tuViewport { flex: 1; overflow: hidden; border-radius: 10px; }
+  .tuTrack { display: flex; transition: transform .35s cubic-bezier(.22,.61,.36,1); }
+  .tuSlide {
+    flex: 0 0 100%; min-width: 0; padding: 12px 16px;
+    background: #11162b; border: 1px solid #232a49; border-radius: 10px;
+    border-top: 3px solid #FFB454;
+  }
+  .tuName {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px;
+    letter-spacing: .08em; text-transform: uppercase; color: #FFB454;
+  }
+  .tuPartner { font-size: 11.5px; color: #8b93ad; margin: 1px 0 6px; }
+  .tuEffect { font-size: 12.5px; color: #cdd3e6; line-height: 1.4; }
+  .tuNote { font-size: 12.5px; color: #aab2cc; line-height: 1.5; margin-top: 7px;
+    padding-top: 7px; border-top: 1px dashed #2a3152; }
+  .tuDots { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; }
+  .tuDot { width: 7px; height: 7px; border-radius: 999px; background: #2a3152;
+    border: none; padding: 0; cursor: pointer; transition: background .2s; }
+  .tuDot.on { background: #FFB454; }
+  .boostChip {
+    display: inline-block; margin-top: 6px; padding: 2px 7px; border-radius: 4px;
+    background: rgba(74,222,184,.14); color: #4ADEB8;
+    font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  }
+  @keyframes cardsIn { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+  .cards.tuAnim > * { animation: cardsIn .3s ease both; }
+  @media (prefers-reduced-motion: reduce) {
+    .tuTrack { transition: none; } .cards.tuAnim > * { animation: none; }
+  }
   .banResults { margin-bottom: 6px; }
   .banHeading {
     font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px;
@@ -272,8 +309,8 @@
 <body>
 <div class="shell">
   <div class="brand">Rivals <em>Counter Lab</em></div>
-  <div class="sub">Season 8.5 · 51 heroes · Cyclops is live — matchups provisional until data settles</div>
-  <div class="metaNote">Counter order blends matchup strength with current win-rate tier (<b>S</b> strongest → <b>F</b> weakest, per Counterwatch, all ranks, updated Jun 19) — a pick has to counter the target and be performing well to lead. A <b>weak pick</b> badge means the hero counters on paper but is underperforming this patch.</div>
+  <div class="sub">Season 9 · 52 heroes · Jubilee is live · Team-Up overhaul + Black Widow rework in effect</div>
+  <div class="metaNote">Counter order blends matchup strength with current win-rate tier (<b>S</b> strongest → <b>F</b> weakest — Counterwatch win rates cross-checked against RivalsMeta, RivalsTracker ban data, Mobalytics, and editorial tier lists, updated Jul 18) — a pick has to counter the target and be performing well to lead. A <b>weak pick</b> badge means the hero counters on paper but is underperforming this patch. Jubilee's counters are early-season and will firm up as data matures.</div>
   <div class="mainTabs">
     <button class="mainTab on" id="tabSolo">Character Counters</button>
     <button class="mainTab" id="tabBans">Ban Helper</button>
@@ -333,6 +370,7 @@ const HEROES = [
   { name: "Gambit", role: "S" },
   { name: "Invisible Woman", role: "S" },
   { name: "Jeff the Land Shark", role: "S" },
+  { name: "Jubilee", role: "S" },
   { name: "Loki", role: "S" },
   { name: "Luna Snow", role: "S" },
   { name: "Mantis", role: "S" },
@@ -343,6 +381,63 @@ const HEROES = [
 
 // ─── Counter data ────────────────────────────────────────────────────────────
 // For each hero: ranked counters per role, best first. [name, why it works]
+// ─── Team-Ups (Season 9 overhaul) ────────────────────────────────────────────
+// S9 mechanic: every hero picks ONE Team-Up from their own options; it works solo at
+// base strength and gets an enhanced effect if the partner is on the team.
+// NOTE: no tracker publishes counter data split by active Team-Up, so these "counter
+// shift" notes are kit-derived, not measured. Entries are only added where the name,
+// partner, and effect are verifiable — rolling out hero by hero as info firms up.
+// boost: heroes from this hero's counter lists that get BETTER when this Team-Up is active.
+const TEAMUPS = {
+  "Spider-Man": [
+    { name: "Symbiote Bond", partner: "Venom",
+      effect: "Symbiote surge — burst survivability and knockback on demand",
+      note: "He effectively gets one extra escape per fight. Peni and Namor still jail him, but expect to spend one more rotation of cooldowns — save the freeze or sleep for after he burns the surge.",
+      boost: ["Peni Parker", "Namor"] },
+    { name: "Parker Power-Up", partner: "Peni Parker",
+      effect: "Parker-tech webbing — extra poke pressure between dives",
+      note: "More harassment, same glass jaw. His dive timing gets more frequent, which makes lock-on answers even better — Scarlet Witch and squids don't care how often he swings in.",
+      boost: ["Scarlet Witch"] },
+  ],
+  "Jubilee": [
+    { name: "Hellfire Sparks", partner: "Blade",
+      effect: "Blade-charged fireworks add burn pressure to her plasmoids",
+      note: "Her damage threat rises; her 275 HP doesn't. Dive her exactly the same — Black Panther and Spider-Man remain the play, just respect the extra chip on the way in.",
+      boost: [] },
+    { name: "Vampiric Kin", partner: "The Hood (arrives in Season 9.5)",
+      effect: "Vampire-themed lifesteal link — sustain through her own damage",
+      note: "Lifesteal punishes slow chip damage. Burst her or CC her — Mantis sleep and Luna freeze switch the sustain off entirely. Until The Hood ships, she only gets the base effect.",
+      boost: ["Mantis", "Luna Snow"] },
+  ],
+  "Invisible Woman": [
+    { name: "United Siblings", partner: "Human Torch",
+      effect: "Bigger, stronger shields that boost damage shot through them",
+      note: "Poking into her shield now feeds her team. Go around or through — Iron Fist's tracking punches and committed dives ignore the shield wall entirely.",
+      boost: ["Iron Fist", "Psylocke"] },
+    { name: "First Family", partner: "Mister Fantastic & The Thing",
+      effect: "Fantastic Four synergy — team-wide durability boost",
+      note: "The whole FF package gets tankier, not slipperier. She's still the squishiest link — dive her first and the durability web unravels.",
+      boost: [] },
+  ],
+  "Iron Man": [
+    { name: "Gamma Charge", partner: "Hulk",
+      effect: "Gamma-overcharged armor — a fatter health bar in hover",
+      note: "The bonus health blunts flat burst, so percent-based damage rises in value — the counter list below swaps accordingly. Hitscan still wins, just commit to finishing.",
+      boost: ["The Punisher"],
+      swaps: [{ r: "D", out: "Hawkeye", in: ["Scarlet Witch", "Percent damage chews through the gamma health bonus that blunts normal burst"] }] },
+    { name: "Thunder Overdrive", partner: "Thor",
+      effect: "Thor-charged repulsors — heavier poke from the sky",
+      note: "Bigger beams mean he holds angles longer, which makes shields and blind more valuable while your hitscan lines him up.",
+      boost: ["Cloak & Dagger"] },
+  ],
+  "Magneto": [
+    { name: "Metallic Chaos", partner: "Scarlet Witch",
+      effect: "Chaos-infused metal — empowered ring toss and burst",
+      note: "His burst threat rises but the shield game is unchanged — Wolverine still shreds him, and out-shielding him with Strange still wins the front line.",
+      boost: [] },
+  ],
+};
+
 const COUNTERS = {
   "Angela": {
     V: [
@@ -600,20 +695,23 @@ const COUNTERS = {
     ],
   },
   "Black Widow": {
+    // Season 9 rework: sniper moved to her ultimate (no more baseline one-shot), added a
+    // Widow's Bite Slam melee option. Still a 275 HP backline pick sitting at F-tier (45.9%) —
+    // dive and stealth still beat her; she just isn't quite as helpless up close as before.
     V: [
       ["Doctor Strange", "Shield erases her sightlines and walks the team up"],
-      ["Magneto", "Shields negate her picks until she's in your face"],
-      ["Venom", "Dives her perch — she has almost nothing up close"],
+      ["Magneto", "Shields negate her picks and eat her plasma-blast slow"],
+      ["Venom", "Dives her perch and out-brawls her new slam in melee"],
     ],
     D: [
-      ["Spider-Man", "Closes the gap instantly and she folds in melee"],
-      ["Black Panther", "Dashes through her sightline and deletes her"],
-      ["Psylocke", "Stealth approach, burst, gone — she never gets a shot off"],
+      ["Spider-Man", "Collapses on her before she can slam away — she still folds to dive"],
+      ["Black Panther", "Dashes through her sightline and bursts her down"],
+      ["Psylocke", "Stealth approach, burst, gone — she never lines up a shot"],
     ],
     S: [
       ["Loki", "Clones bait her shots and waste her tempo"],
-      ["Invisible Woman", "Invisibility makes her sniping irrelevant"],
-      ["Cloak & Dagger", "Blind erases her scope at the worst moments"],
+      ["Invisible Woman", "Invisibility makes her sniping ult nearly worthless"],
+      ["Cloak & Dagger", "Blind erases her aim at the worst moments"],
     ],
   },
   "Blade": {
@@ -1111,6 +1209,26 @@ const COUNTERS = {
       ["Mantis", "Sleep him as he surfaces for the kill"],
     ],
   },
+  "Jubilee": {
+    // Season 9 launch Strategist. Counters from Counterwatch duel data (Black Panther +12.9,
+    // Spider-Man, Squirrel Girl) plus kit analysis — 275 HP with no defensive cooldown once
+    // Sparking Sprint is spent, so dive and burst punish her hard.
+    V: [
+      ["Venom", "Dives her 275 HP the moment Sparking Sprint is on cooldown"],
+      ["Captain America", "Runs her down and forces the sprint defensively, gutting her healing"],
+      ["Hulk", "Leaps the backline; she has no answer once he lands on her"],
+    ],
+    D: [
+      ["Black Panther", "Hardest counter by the data — his dashes dodge her plasmoids, then delete her"],
+      ["Spider-Man", "Reaches her from awkward vertical angles before Blooming Ball charges"],
+      ["Psylocke", "Stealth approach punishes her before she can react or sprint away"],
+    ],
+    S: [
+      ["Jeff the Land Shark", "Bubble displaces her out of position and ruins her Firework Finale"],
+      ["Luna Snow", "Freeze interrupts her ult and out-sustains her in the support duel"],
+      ["Mantis", "Sleep cancels Firework Finale and sets up the focus kill"],
+    ],
+  },
   "Loki": {
     V: [
       ["Venom", "Dive pressure forces clone swaps until he's out"],
@@ -1230,14 +1348,16 @@ const heroRole = (name) => { const h = HEROES.find((x) => x.name === name); retu
 // Used ONLY as a tie-breaker between heroes that already counter the enemy, and to
 // flag picks that are weak in the current meta. Matchup data still decides who counters whom.
 const TIER = {
-  "Peni Parker":"S","Magik":"S","Rocket Raccoon":"S","Devil Dinosaur":"S","Ultron":"S","Daredevil":"S",
-  "Mantis":"A","Cyclops":"A","Hulk":"A","Black Panther":"A","Black Cat":"A","White Fox":"A","Captain America":"A","Storm":"A",
-  "Blade":"B","Spider-Man":"B","Mister Fantastic":"B","Rogue":"B","Iron Fist":"B","Star-Lord":"B","Iron Man":"B","Hela":"B","Angela":"B",
-  "Doctor Strange":"C","Thor":"C","Luna Snow":"C","Moon Knight":"C","Wolverine":"C","Deadpool":"C","Invisible Woman":"C","Psylocke":"C","Venom":"C","Winter Soldier":"C","Scarlet Witch":"C","The Punisher":"C",
-  "Adam Warlock":"D","Emma Frost":"D","Groot":"D","Gambit":"D","The Thing":"D","Cloak & Dagger":"D","Squirrel Girl":"D","Phoenix":"D","Jeff the Land Shark":"D","Namor":"D","Elsa Bloodstone":"D","Loki":"D",
-  "Magneto":"F","Hawkeye":"F","Human Torch":"F","Black Widow":"F",
+  // Season 9 — Counterwatch shrunk win rate, all ranks, updated Jul 18 2026 (post-launch + Jul 11 hotfix)
+  "Peni Parker":"S","Magik":"S","Rocket Raccoon":"S","Mantis":"S","Ultron":"S","Storm":"S",
+  "Daredevil":"A","Devil Dinosaur":"A","Blade":"A","Black Panther":"A","Mister Fantastic":"A","Captain America":"A","Hulk":"A","Iron Fist":"A",
+  "Spider-Man":"B","Hela":"B","White Fox":"B","Angela":"B","Rogue":"B","Cyclops":"B","Black Cat":"B","Jubilee":"B","Iron Man":"B","Thor":"B","Star-Lord":"B","Psylocke":"B",
+  "Wolverine":"C","The Thing":"C","Venom":"C","Doctor Strange":"C","Luna Snow":"C","Winter Soldier":"C","Emma Frost":"C","Deadpool":"C","Groot":"C","Invisible Woman":"C","Cloak & Dagger":"C","The Punisher":"C","Scarlet Witch":"C",
+  "Adam Warlock":"D","Namor":"D","Magneto":"D","Loki":"D","Gambit":"D","Elsa Bloodstone":"D","Human Torch":"D","Squirrel Girl":"D","Moon Knight":"D","Jeff the Land Shark":"D",
+  "Phoenix":"F","Hawkeye":"F","Black Widow":"F",
 };
-// "Hulk" maps to Counterwatch's "Bruce Banner" A-tier entry.
+// "Hulk" maps to Counterwatch's "Bruce Banner" A-tier entry. Deadpool listed once (C) as the app
+// treats him as one flex hero, though Counterwatch now splits his three role-kits separately.
 const TIER_RANK = { S:0, A:1, B:2, C:3, D:4, F:5 };
 const TIER_COLOR = { S:"#FF5470", A:"#FFB454", B:"#4ADEB8", C:"#7d86a3", D:"#7d86a3", F:"#5d6685" };
 const tierOf = (name) => TIER[name] || "C";
@@ -1248,11 +1368,14 @@ const isWeakMeta = (name) => TIER_RANK[tierOf(name)] >= TIER_RANK["D"]; // D or 
 // separate axis from raw tier. High = the hero swings games or is miserable to play against.
 // Scale 0–10. Used alongside how hard a hero counters YOUR planned comp.
 const BAN_PRIORITY = {
-  "Gambit": 9, "Phoenix": 9, "Cyclops": 9, "Star-Lord": 8, "Invisible Woman": 8,
-  "Elsa Bloodstone": 8, "Devil Dinosaur": 8, "Venom": 7, "Daredevil": 7, "Peni Parker": 7,
-  "Magik": 6, "Emma Frost": 6, "Rocket Raccoon": 6, "Hela": 5, "Iron Fist": 5,
-  "Black Panther": 5, "Spider-Man": 5, "Psylocke": 4, "Scarlet Witch": 4, "Hawkeye": 4,
-  "Wolverine": 4, "Storm": 3, "Mantis": 3, "Luna Snow": 3,
+  // Season 9 ban-rate consensus (Beebom/RivalsTracker Jul 17, plus Insider Gaming, Mobalytics).
+  // Ban rate = how oppressive/frustrating to face, NOT raw tier — Gambit stays a near-permanent
+  // ban on utility despite a low win rate, while Peni tops both charts.
+  "Black Panther": 9, "Peni Parker": 9, "Gambit": 9, "Magik": 8, "Invisible Woman": 8,
+  "Storm": 7, "Daredevil": 7, "Rocket Raccoon": 7, "Mantis": 7, "Iron Fist": 6,
+  "Ultron": 6, "Devil Dinosaur": 6, "Blade": 6, "Spider-Man": 6, "Psylocke": 5,
+  "Hela": 5, "Mister Fantastic": 5, "Wolverine": 4, "Cyclops": 4, "Captain America": 4,
+  "Scarlet Witch": 3, "Venom": 3, "Black Cat": 3, "Jubilee": 3,
 };
 const banPriorityOf = (name) => BAN_PRIORITY[name] || 2;
 
@@ -1307,7 +1430,7 @@ tabSolo.addEventListener("click", () => { state.tab = "solo"; state.lastHeard = 
 tabBans.addEventListener("click", () => { state.tab = "bans"; state.lastHeard = ""; render(); });
 tabTeam.addEventListener("click", () => { state.tab = "team"; state.lastHeard = ""; render(); });
 
-function pick(name) { state.selected = name; state.page = 0; render(); window.scrollTo({ top: 0 }); }
+function pick(name) { state.selected = name; state.page = 0; state.tuIdx = 0; render(); window.scrollTo({ top: 0 }); }
 
 function render() {
   tabSolo.classList.toggle("on", state.tab === "solo");
@@ -1393,16 +1516,20 @@ const tierBadge = (name) => {
     (weak ? `<span class="weakBadge" title="Low win rate in the current patch">weak pick</span>` : "");
 };
 
-function renderDetail() {
-  const name = state.selected;
-  const role = heroRole(name);
-  const raw = COUNTERS[name];
-  const data = { V: tierAdjust(raw.V), D: tierAdjust(raw.D), S: tierAdjust(raw.S) };
-  const maxPage = Math.max(data.V.length, data.D.length, data.S.length) - 1;
-  state.page = Math.min(state.page, maxPage);
-
-  const cards = ["V", "D", "S"].map((r) => {
-    const entry = data[r][state.page];
+function counterCardsHTML(name, data, page, tuEntry) {
+  const boosted = new Set(tuEntry ? tuEntry.boost : []);
+  // Apply Team-Up counter swaps: some Team-Ups genuinely change who the right answer is
+  let d = data;
+  const swappedIn = new Set();
+  if (tuEntry && tuEntry.swaps) {
+    d = { V: [...data.V], D: [...data.D], S: [...data.S] };
+    for (const s of tuEntry.swaps) {
+      const i = d[s.r].findIndex(([n]) => n === s.out);
+      if (i >= 0) { d[s.r][i] = s.in; swappedIn.add(s.in[0]); }
+    }
+  }
+  return ["V", "D", "S"].map((r) => {
+    const entry = d[r][page];
     if (!entry) return `
       <div class="card dead" style="border-top-color:${ROLE[r].color}">
         <div class="cardRole" style="color:${ROLE[r].color}">${ROLE[r].label}</div>
@@ -1419,8 +1546,38 @@ function renderDetail() {
           ${tierBadge(cname)}
         </div>
         <div class="why">${esc(why)}</div>
+        ${swappedIn.has(cname) ? '<span class="boostChip" style="background:rgba(255,180,84,.14);color:#FFB454">⇄ Team-Up pick</span>' : boosted.has(cname) ? '<span class="boostChip">↑ stronger vs this Team-Up</span>' : ""}
       </button>`;
   }).join("");
+}
+
+function renderDetail() {
+  const name = state.selected;
+  const role = heroRole(name);
+  const raw = COUNTERS[name];
+  const data = { V: tierAdjust(raw.V), D: tierAdjust(raw.D), S: tierAdjust(raw.S) };
+  const maxPage = Math.max(data.V.length, data.D.length, data.S.length) - 1;
+  state.page = Math.min(state.page, maxPage);
+
+  const tus = TEAMUPS[name] || null;
+  // slides: index 0 = "No Team-Up" baseline, then each Team-Up option
+  state.tuIdx = Math.min(state.tuIdx || 0, tus ? tus.length : 0);
+  const tuEntry = tus && state.tuIdx > 0 ? tus[state.tuIdx - 1] : null;
+
+  const tuSlides = tus ? [
+    `<div class="tuSlide" style="border-top-color:#5d6685">
+      <div class="tuName" style="color:#8b93ad">No Team-Up / unknown</div>
+      <div class="tuPartner">Baseline matchups</div>
+      <div class="tuEffect">Slide to see how ${esc(name)}'s Season 9 Team-Up options change the fight.</div>
+    </div>`,
+    ...tus.map((t) => `
+    <div class="tuSlide">
+      <div class="tuName">${esc(t.name)}</div>
+      <div class="tuPartner">Enhanced with: ${esc(t.partner)}</div>
+      <div class="tuEffect">${esc(t.effect)}</div>
+      <div class="tuNote">${esc(t.note)}</div>
+    </div>`),
+  ] : null;
 
   view.innerHTML = `
     <button class="back" id="back">← All heroes</button>
@@ -1431,19 +1588,51 @@ function renderDetail() {
         <div class="chipRole" style="color:${ROLE[role].color}">${ROLE[role].label} · ${ROLE[role].alt}</div>
       </div>
     </div>
+    ${tuSlides ? `
+    <div class="tuWrap">
+      <button class="tuArrow" id="tuPrev" ${state.tuIdx === 0 ? "disabled" : ""}>‹</button>
+      <div class="tuViewport"><div class="tuTrack" id="tuTrack" style="transform:translateX(-${state.tuIdx * 100}%)">${tuSlides.join("")}</div></div>
+      <button class="tuArrow" id="tuNext" ${state.tuIdx >= tus.length ? "disabled" : ""}>›</button>
+    </div>
+    <div class="tuDots" id="tuDots">${tuSlides.map((_, i) => `<button class="tuDot ${i === state.tuIdx ? "on" : ""}" data-i="${i}"></button>`).join("")}</div>
+    ` : ""}
     <div class="pager">
       <button class="navBtn" id="prev" ${state.page === 0 ? "disabled" : ""}>← Prev</button>
       <div class="pagerLabel">Counter rank <b>#${state.page + 1}</b> of ${maxPage + 1}</div>
       <button class="navBtn" id="next" ${state.page >= maxPage ? "disabled" : ""}>Next →</button>
     </div>
-    <div class="cards">${cards}</div>
-    <div class="hint">Tip: tap any counter card to jump to that hero's own counters. Order blends matchup strength with current win-rate tier — a pick has to counter the target and be performing well to lead. The letter badge is the hero's meta tier (S best, F worst); "weak pick" flags a counter that works on paper but is underperforming this patch — fine in a pinch, but there's usually a stronger option.</div>`;
+    <div class="cards" id="cards">${counterCardsHTML(name, data, state.page, tuEntry)}</div>
+    <div class="hint">Tip: tap any counter card to jump to that hero's own counters. Order blends matchup strength with current win-rate tier — a pick has to counter the target and be performing well to lead. The letter badge is the hero's meta tier (S best, F worst); "weak pick" flags a counter that works on paper but is underperforming this patch — fine in a pinch, but there's usually a stronger option.${tus ? " Team-Up notes are kit-based reads, not tracker data — no site measures matchups per Team-Up yet." : ""}</div>`;
 
-  view.querySelector("#back").addEventListener("click", () => { state.selected = null; render(); });
+  const wireCards = () => view.querySelectorAll(".card[data-hero]").forEach((b) =>
+    b.addEventListener("click", () => pick(b.dataset.hero)));
+
+  view.querySelector("#back").addEventListener("click", () => { state.selected = null; state.tuIdx = 0; render(); });
   view.querySelector("#prev").addEventListener("click", () => { if (state.page > 0) { state.page--; render(); } });
   view.querySelector("#next").addEventListener("click", () => { if (state.page < maxPage) { state.page++; render(); } });
-  view.querySelectorAll(".card[data-hero]").forEach((b) =>
-    b.addEventListener("click", () => pick(b.dataset.hero)));
+  wireCards();
+
+  if (tus) {
+    // Slide in place: animate the track transform, then refresh only the cards so the
+    // CSS transition isn't destroyed by a full re-render.
+    const goTo = (idx) => {
+      state.tuIdx = Math.max(0, Math.min(idx, tus.length));
+      view.querySelector("#tuTrack").style.transform = `translateX(-${state.tuIdx * 100}%)`;
+      view.querySelector("#tuPrev").disabled = state.tuIdx === 0;
+      view.querySelector("#tuNext").disabled = state.tuIdx >= tus.length;
+      view.querySelectorAll(".tuDot").forEach((d, i) => d.classList.toggle("on", i === state.tuIdx));
+      const entry = state.tuIdx > 0 ? tus[state.tuIdx - 1] : null;
+      const cardsEl = view.querySelector("#cards");
+      cardsEl.classList.remove("tuAnim");
+      void cardsEl.offsetWidth; // restart the card entry animation
+      cardsEl.innerHTML = counterCardsHTML(name, data, state.page, entry);
+      cardsEl.classList.add("tuAnim");
+      wireCards();
+    };
+    view.querySelector("#tuPrev").addEventListener("click", () => goTo(state.tuIdx - 1));
+    view.querySelector("#tuNext").addEventListener("click", () => goTo(state.tuIdx + 1));
+    view.querySelectorAll(".tuDot").forEach((d) => d.addEventListener("click", () => goTo(+d.dataset.i)));
+  }
 }
 
 /* ══════════ VOICE INPUT ══════════ */
