@@ -1560,24 +1560,25 @@ function renderDetail() {
   state.page = Math.min(state.page, maxPage);
 
   const tus = TEAMUPS[name] || null;
-  // slides: index 0 = "No Team-Up" baseline, then each Team-Up option
-  state.tuIdx = Math.min(state.tuIdx || 0, tus ? tus.length : 0);
-  const tuEntry = tus && state.tuIdx > 0 ? tus[state.tuIdx - 1] : null;
+  // Every hero has a Team-Up equipped in Season 9 — no baseline slide. Slide 0 = first option.
+  const slideCount = tus ? tus.length : 1;
+  state.tuIdx = Math.min(state.tuIdx || 0, slideCount - 1);
+  const tuEntry = tus ? tus[state.tuIdx] : null;
 
-  const tuSlides = tus ? [
-    `<div class="tuSlide" style="border-top-color:#5d6685">
-      <div class="tuName" style="color:#8b93ad">No Team-Up / unknown</div>
-      <div class="tuPartner">Baseline matchups</div>
-      <div class="tuEffect">Slide to see how ${esc(name)}'s Season 9 Team-Up options change the fight.</div>
-    </div>`,
-    ...tus.map((t) => `
+  const tuSlides = tus
+    ? tus.map((t) => `
     <div class="tuSlide">
       <div class="tuName">${esc(t.name)}</div>
       <div class="tuPartner">Enhanced with: ${esc(t.partner)}</div>
       <div class="tuEffect">${esc(t.effect)}</div>
       <div class="tuNote">${esc(t.note)}</div>
-    </div>`),
-  ] : null;
+    </div>`)
+    : [`
+    <div class="tuSlide" style="border-top-color:#5d6685">
+      <div class="tuName" style="color:#8b93ad">Team-Up intel pending</div>
+      <div class="tuPartner">${esc(name)}'s Season 9 Team-Up options haven't been verified yet</div>
+      <div class="tuEffect">Counters below are baseline matchups. Verified Team-Up breakdowns are being added hero by hero — effects for most of the 54 overhauled Team-Ups aren't published anywhere reliable yet.</div>
+    </div>`];
 
   view.innerHTML = `
     <button class="back" id="back">← All heroes</button>
@@ -1588,14 +1589,12 @@ function renderDetail() {
         <div class="chipRole" style="color:${ROLE[role].color}">${ROLE[role].label} · ${ROLE[role].alt}</div>
       </div>
     </div>
-    ${tuSlides ? `
     <div class="tuWrap">
       <button class="tuArrow" id="tuPrev" ${state.tuIdx === 0 ? "disabled" : ""}>‹</button>
       <div class="tuViewport"><div class="tuTrack" id="tuTrack" style="transform:translateX(-${state.tuIdx * 100}%)">${tuSlides.join("")}</div></div>
-      <button class="tuArrow" id="tuNext" ${state.tuIdx >= tus.length ? "disabled" : ""}>›</button>
+      <button class="tuArrow" id="tuNext" ${state.tuIdx >= slideCount - 1 ? "disabled" : ""}>›</button>
     </div>
-    <div class="tuDots" id="tuDots">${tuSlides.map((_, i) => `<button class="tuDot ${i === state.tuIdx ? "on" : ""}" data-i="${i}"></button>`).join("")}</div>
-    ` : ""}
+    ${slideCount > 1 ? `<div class="tuDots" id="tuDots">${tuSlides.map((_, i) => `<button class="tuDot ${i === state.tuIdx ? "on" : ""}" data-i="${i}"></button>`).join("")}</div>` : '<div style="margin-bottom:14px"></div>'}
     <div class="pager">
       <button class="navBtn" id="prev" ${state.page === 0 ? "disabled" : ""}>← Prev</button>
       <div class="pagerLabel">Counter rank <b>#${state.page + 1}</b> of ${maxPage + 1}</div>
@@ -1612,16 +1611,16 @@ function renderDetail() {
   view.querySelector("#next").addEventListener("click", () => { if (state.page < maxPage) { state.page++; render(); } });
   wireCards();
 
-  if (tus) {
+  if (tus && slideCount > 1) {
     // Slide in place: animate the track transform, then refresh only the cards so the
     // CSS transition isn't destroyed by a full re-render.
     const goTo = (idx) => {
-      state.tuIdx = Math.max(0, Math.min(idx, tus.length));
+      state.tuIdx = Math.max(0, Math.min(idx, slideCount - 1));
       view.querySelector("#tuTrack").style.transform = `translateX(-${state.tuIdx * 100}%)`;
       view.querySelector("#tuPrev").disabled = state.tuIdx === 0;
-      view.querySelector("#tuNext").disabled = state.tuIdx >= tus.length;
+      view.querySelector("#tuNext").disabled = state.tuIdx >= slideCount - 1;
       view.querySelectorAll(".tuDot").forEach((d, i) => d.classList.toggle("on", i === state.tuIdx));
-      const entry = state.tuIdx > 0 ? tus[state.tuIdx - 1] : null;
+      const entry = tus[state.tuIdx];
       const cardsEl = view.querySelector("#cards");
       cardsEl.classList.remove("tuAnim");
       void cardsEl.offsetWidth; // restart the card entry animation
