@@ -1,0 +1,2619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0e1a">
+<title>Rivals Counter Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    min-height: 100vh;
+    background: radial-gradient(1200px 600px at 80% -10%, #1b2347 0%, #0b0e1a 55%) #0b0e1a;
+    color: #e9ecf5;
+    font-family: 'Barlow', system-ui, sans-serif;
+    padding: 20px 16px 48px;
+  }
+  button { font: inherit; }
+  .shell { max-width: 880px; margin: 0 auto; }
+  .brand {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700; font-size: 26px; letter-spacing: 0.12em;
+    text-transform: uppercase; line-height: 1;
+  }
+  .brand em { font-style: normal; color: #FFB454; }
+  .sub { color: #8b93ad; font-size: 13px; margin-top: 4px; }
+  .mainTabs { display: flex; gap: 8px; margin: 18px 0 14px; }
+  .mainTab {
+    flex: 1; padding: 11px 0; cursor: pointer; border: 1px solid #2a3152;
+    background: #11162b; color: #aab2cc;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    transition: all .15s;
+  }
+  .mainTab.on { background: #FFB454; color: #14182b; border-color: #FFB454; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .pill {
+    padding: 8px 14px; cursor: pointer; border: 1px solid #2a3152;
+    background: #11162b; color: #aab2cc; border-radius: 999px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 14px;
+    letter-spacing: 0.06em; text-transform: uppercase; transition: all .15s;
+  }
+  .pill small { opacity: .65; font-size: 11px; margin-left: 5px; }
+  .pill.on { color: #0b0e1a; border-color: transparent; }
+  .search {
+    flex: 1; min-width: 150px; padding: 8px 14px; border-radius: 999px;
+    border: 1px solid #2a3152; background: #0e1326; color: #e9ecf5;
+    font-family: 'Barlow', sans-serif; font-size: 14px; outline: none;
+  }
+  .search::placeholder { color: #5d6685; }
+  .grid {
+    display: grid; gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .chip {
+    display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+    background: #11162b; border: 1px solid #232a49; border-left-width: 3px;
+    border-radius: 8px; cursor: pointer; text-align: left; color: #e9ecf5;
+    transition: transform .1s, border-color .15s;
+  }
+  .chip:hover { transform: translateY(-1px); border-color: #3a4470; }
+  .ava {
+    position: relative; overflow: hidden;
+    width: 32px; height: 32px; flex: none; display: grid; place-items: center;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px;
+    color: #0b0e1a; clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  }
+  .ava img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: top center;
+  }
+  .chipName { font-size: 13.5px; font-weight: 600; line-height: 1.15; }
+  .chipRole { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; }
+  .back {
+    background: none; border: none; color: #8b93ad; cursor: pointer;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 14px;
+    letter-spacing: .08em; text-transform: uppercase; padding: 0; margin-bottom: 14px;
+  }
+  .back:hover { color: #e9ecf5; }
+  .heroHead {
+    display: flex; align-items: center; gap: 14px; padding: 16px;
+    background: #11162b; border: 1px solid #232a49; border-radius: 10px;
+    margin-bottom: 18px;
+  }
+  .heroHead .ava { width: 46px; height: 46px; font-size: 18px; }
+  .heroName {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 24px; letter-spacing: .05em; text-transform: uppercase; line-height: 1;
+  }
+  .pager {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .pagerLabel {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px;
+    letter-spacing: .12em; text-transform: uppercase; color: #8b93ad;
+  }
+  .pagerLabel b { color: #FFB454; }
+  .navBtn {
+    padding: 7px 18px; cursor: pointer; border: 1px solid #2a3152;
+    background: #11162b; color: #e9ecf5; border-radius: 6px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px;
+    letter-spacing: .1em; text-transform: uppercase; transition: all .15s;
+  }
+  .navBtn:hover:not(:disabled) { background: #FFB454; color: #0b0e1a; border-color: #FFB454; }
+  .navBtn:disabled { opacity: .3; cursor: default; }
+  .cards { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); }
+  .card {
+    padding: 14px; border-radius: 10px; border: 1px solid #232a49;
+    background: #11162b; border-top-width: 3px; cursor: pointer;
+    text-align: left; color: #e9ecf5; transition: transform .1s, border-color .15s;
+  }
+  .card:hover { transform: translateY(-2px); }
+  .card.dead { opacity: .4; cursor: default; }
+  .cardRole {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 11.5px;
+    letter-spacing: .14em; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .cardHero { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+  .cardName {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 17px;
+    letter-spacing: .04em; text-transform: uppercase; line-height: 1.05;
+  }
+  .why { font-size: 13px; line-height: 1.45; color: #aab2cc; }
+  .hint { font-size: 11.5px; color: #5d6685; margin-top: 14px; }
+  .empty {
+    padding: 40px 20px; text-align: center; color: #8b93ad;
+    background: #11162b; border: 1px dashed #2a3152; border-radius: 10px;
+  }
+  .empty h3 {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 20px;
+    letter-spacing: .1em; text-transform: uppercase; color: #e9ecf5; margin: 0 0 8px;
+  }
+  .empty p { margin: 0; font-size: 14px; }
+  .flexBadge {
+    font-size: 9px; font-weight: 700; letter-spacing: .1em; padding: 2px 5px;
+    border-radius: 3px; background: rgba(255,180,84,.18); color: #FFB454;
+    margin-left: 6px; vertical-align: 2px;
+  }
+  .tray {
+    display: flex; flex-wrap: wrap; gap: 8px; padding: 12px;
+    background: #0e1326; border: 1px solid #232a49; border-radius: 10px;
+    margin-bottom: 14px; align-items: center;
+  }
+  .trayLabel {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px;
+    letter-spacing: .12em; text-transform: uppercase; color: #8b93ad; width: 100%;
+  }
+  .slot {
+    display: flex; align-items: center; gap: 7px; padding: 5px 8px 5px 5px;
+    background: #11162b; border: 1px solid #2a3152; border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+  }
+  .slot .x {
+    background: none; border: none; color: #8b93ad; cursor: pointer;
+    font-size: 15px; line-height: 1; padding: 0 2px;
+  }
+  .slot .x:hover { color: #FF5470; }
+  .slot .ava { width: 22px; height: 22px; font-size: 9px; }
+  .slotEmpty {
+    width: 34px; height: 34px; border: 1px dashed #2a3152; border-radius: 999px;
+    display: grid; place-items: center; color: #3a4470; font-size: 16px;
+  }
+  .analyzeBtn {
+    margin-left: auto; padding: 9px 22px; cursor: pointer; border: none;
+    background: #FFB454; color: #0b0e1a; border-radius: 6px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px;
+    letter-spacing: .1em; text-transform: uppercase;
+  }
+  .analyzeBtn:disabled { opacity: .35; cursor: default; }
+  .plan {
+    padding: 16px; background: #11162b; border: 1px solid #232a49;
+    border-left: 4px solid #FFB454; border-radius: 10px; margin-bottom: 18px;
+  }
+  .planHead {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 8px;
+  }
+  .planTitle {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 20px;
+    letter-spacing: .06em; text-transform: uppercase; color: #FFB454;
+  }
+  .speakBtn {
+    padding: 7px 14px; cursor: pointer; border: 1px solid #2a3152; flex: none;
+    background: #0e1326; color: #e9ecf5; border-radius: 999px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 13px;
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+  .speakBtn.speaking { background: #FFB454; color: #0b0e1a; border-color: #FFB454; }
+  .planBody { font-size: 14px; line-height: 1.55; color: #cdd3e6; }
+  .planBody b { color: #e9ecf5; }
+  .strongInto { font-size: 11.5px; color: #7d86a3; margin-top: 7px; }
+  .micBtn {
+    padding: 9px 16px; cursor: pointer; border: 1px solid #2a3152; flex: none;
+    background: #0e1326; color: #e9ecf5; border-radius: 999px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px;
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+  .micBtn.live {
+    background: #FF5470; border-color: #FF5470; color: #fff;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 7px rgba(255,84,112,.25); } }
+  .heard {
+    width: 100%; font-size: 12.5px; color: #8b93ad; font-style: italic;
+    min-height: 16px;
+  }
+  .heard b { color: #4ADEB8; font-style: normal; }
+  @media (prefers-reduced-motion: reduce) { .micBtn.live { animation: none; } }
+  .clearBtn {
+    padding: 9px 16px; cursor: pointer; border: 1px solid #2a3152; flex: none;
+    background: transparent; color: #8b93ad; border-radius: 999px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px;
+    letter-spacing: .08em; text-transform: uppercase; transition: all .15s;
+  }
+  .clearBtn:hover { color: #FF5470; border-color: #FF5470; }
+  .tierBadge {
+    margin-left: auto; flex: none; width: 20px; height: 20px; display: grid;
+    place-items: center; border: 1.5px solid; border-radius: 5px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px;
+  }
+  .weakBadge {
+    flex: none; margin-left: 6px; padding: 2px 6px; border-radius: 4px;
+    background: rgba(93,102,133,.22); color: #8b93ad;
+    font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  }
+  .metaNote {
+    font-size: 11.5px; color: #5d6685; margin: 2px 0 14px; line-height: 1.5;
+  }
+  .metaNote b { color: #8b93ad; }
+  .tuWrap { display: flex; align-items: stretch; gap: 8px; margin-bottom: 12px; }
+  .tuArrow {
+    flex: none; width: 34px; cursor: pointer; border: 1px solid #2a3152;
+    background: #11162b; color: #8b93ad; border-radius: 8px; font-size: 18px;
+    transition: all .15s;
+  }
+  .tuArrow:hover:not(:disabled) { color: #FFB454; border-color: #FFB454; }
+  .tuArrow:disabled { opacity: .25; cursor: default; }
+  .tuViewport { flex: 1; overflow: hidden; border-radius: 10px; }
+  .tuTrack { display: flex; transition: transform .35s cubic-bezier(.22,.61,.36,1); }
+  .tuSlide {
+    flex: 0 0 100%; min-width: 0; padding: 12px 16px;
+    background: #11162b; border: 1px solid #232a49; border-radius: 10px;
+    border-top: 3px solid #FFB454;
+  }
+  .tuName {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px;
+    letter-spacing: .08em; text-transform: uppercase; color: #FFB454;
+  }
+  .tuPartner { font-size: 11.5px; color: #8b93ad; margin: 1px 0 6px; }
+  .tuEffect { font-size: 12.5px; color: #cdd3e6; line-height: 1.4; }
+  .tuNote { font-size: 12.5px; color: #aab2cc; line-height: 1.5; margin-top: 7px;
+    padding-top: 7px; border-top: 1px dashed #2a3152; }
+  .tuDots { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; }
+  .tuDot { width: 7px; height: 7px; border-radius: 999px; background: #2a3152;
+    border: none; padding: 0; cursor: pointer; transition: background .2s; }
+  .tuDot.on { background: #FFB454; }
+  .boostChip {
+    display: inline-block; margin-top: 6px; padding: 2px 7px; border-radius: 4px;
+    background: rgba(74,222,184,.14); color: #4ADEB8;
+    font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  }
+  @keyframes cardsIn { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+  .cards.tuAnim > * { animation: cardsIn .3s ease both; }
+  @media (prefers-reduced-motion: reduce) {
+    .tuTrack { transition: none; } .cards.tuAnim > * { animation: none; }
+  }
+  .banResults { margin-bottom: 6px; }
+  .banHeading {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px;
+    letter-spacing: .1em; text-transform: uppercase; color: #8b93ad; margin-bottom: 10px;
+  }
+  .banCard {
+    display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px;
+    margin-bottom: 8px; background: #11162b; border: 1px solid #232a49;
+    border-radius: 10px; cursor: pointer; text-align: left; color: #e9ecf5;
+    transition: transform .1s, border-color .15s;
+  }
+  .banCard:hover { transform: translateY(-1px); border-color: #3a4470; }
+  .banRank {
+    flex: none; width: 24px; font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 20px; color: #5d6685; text-align: center;
+  }
+  .banInfo { flex: 1; min-width: 0; }
+  .banName {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px;
+    letter-spacing: .03em; text-transform: uppercase; display: flex; align-items: center; gap: 6px;
+  }
+  .banWhy { font-size: 12.5px; color: #aab2cc; line-height: 1.4; margin-top: 2px; }
+  .banTag {
+    flex: none; padding: 3px 9px; border: 1px solid; border-radius: 999px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 10px;
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+  @media (max-width: 640px) {
+    .banTag { display: none; }
+  }
+  @media (max-width: 640px) {
+    .cards { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chip, .card, .navBtn, .pill, .mainTab { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="brand">Rivals <em>Counter Lab</em></div>
+  <div class="sub">Season 9 · 52 heroes · Jubilee is live · Team-Up overhaul + Black Widow rework in effect</div>
+  <div class="metaNote">Counter order blends matchup strength with current win-rate tier (<b>S</b> strongest → <b>F</b> weakest — Counterwatch win rates cross-checked against RivalsMeta, RivalsTracker ban data, Mobalytics, and editorial tier lists, updated Jul 18) — a pick has to counter the target and be performing well to lead. A <b>weak pick</b> badge means the hero counters on paper but is underperforming this patch. Jubilee's counters are early-season and will firm up as data matures.</div>
+  <div class="mainTabs">
+    <button class="mainTab on" id="tabSolo">Character Counters</button>
+    <button class="mainTab" id="tabBans">Ban Helper</button>
+    <button class="mainTab" id="tabTeam">Team Counters</button>
+  </div>
+  <div id="view"></div>
+</div>
+
+<script>
+/* ══════════ DATA ══════════ */
+const HEROES = [
+  // Vanguards
+  { name: "Angela", role: "V" },
+  { name: "Captain America", role: "V" },
+  { name: "Devil Dinosaur", role: "V" },
+  { name: "Doctor Strange", role: "V" },
+  { name: "Emma Frost", role: "V" },
+  { name: "Groot", role: "V" },
+  { name: "Hulk", role: "V" },
+  { name: "Magneto", role: "V" },
+  { name: "Peni Parker", role: "V" },
+  { name: "Rogue", role: "V" },
+  { name: "The Thing", role: "V" },
+  { name: "Thor", role: "V" },
+  { name: "Venom", role: "V" },
+  // Duelists
+  { name: "Black Cat", role: "D" },
+  { name: "Black Panther", role: "D" },
+  { name: "Black Widow", role: "D" },
+  { name: "Blade", role: "D" },
+  { name: "Cyclops", role: "D" },
+  { name: "Daredevil", role: "D" },
+  { name: "Deadpool", role: "D", flex: true },
+  { name: "Elsa Bloodstone", role: "D" },
+  { name: "Hawkeye", role: "D" },
+  { name: "Hela", role: "D" },
+  { name: "Human Torch", role: "D" },
+  { name: "Iron Fist", role: "D" },
+  { name: "Iron Man", role: "D" },
+  { name: "Magik", role: "D" },
+  { name: "Mister Fantastic", role: "D" },
+  { name: "Moon Knight", role: "D" },
+  { name: "Namor", role: "D" },
+  { name: "Phoenix", role: "D" },
+  { name: "Psylocke", role: "D" },
+  { name: "Scarlet Witch", role: "D" },
+  { name: "Spider-Man", role: "D" },
+  { name: "Squirrel Girl", role: "D" },
+  { name: "Star-Lord", role: "D" },
+  { name: "Storm", role: "D" },
+  { name: "The Punisher", role: "D" },
+  { name: "Winter Soldier", role: "D" },
+  { name: "Wolverine", role: "D" },
+  // Strategists
+  { name: "Adam Warlock", role: "S" },
+  { name: "Cloak & Dagger", role: "S" },
+  { name: "Gambit", role: "S" },
+  { name: "Invisible Woman", role: "S" },
+  { name: "Jeff the Land Shark", role: "S" },
+  { name: "Jubilee", role: "S" },
+  { name: "Loki", role: "S" },
+  { name: "Luna Snow", role: "S" },
+  { name: "Mantis", role: "S" },
+  { name: "Rocket Raccoon", role: "S" },
+  { name: "Ultron", role: "S" },
+  { name: "White Fox", role: "S" },
+];
+
+// ─── Counter data ────────────────────────────────────────────────────────────
+// For each hero: ranked counters per role, best first. [name, why it works]
+// ─── Team-Ups (Season 9 overhaul) ────────────────────────────────────────────
+// S9 mechanic: every hero picks ONE Team-Up from their own options; it works solo at
+// base strength and gets an enhanced effect if the partner is on the team.
+// NOTE: no tracker publishes counter data split by active Team-Up, so these "counter
+// shift" notes are kit-derived, not measured. Entries are only added where the name,
+// partner, and effect are verifiable — rolling out hero by hero as info firms up.
+// boost: heroes from this hero's counter lists that get BETTER when this Team-Up is active.
+const TEAMUPS = {
+  "Spider-Man": [
+    { name: "Symbiote Bond", partner: "Venom",
+      effect: "Symbiote surge — burst survivability and knockback on demand",
+      note: "He effectively gets one extra escape per fight. Peni and Namor still jail him, but expect to spend one more rotation of cooldowns — save the freeze or sleep for after he burns the surge.",
+      boost: ["Peni Parker", "Namor"] },
+    { name: "Parker Power-Up", partner: "Peni Parker",
+      effect: "Parker-tech webbing — extra poke pressure between dives",
+      note: "More harassment, same glass jaw. His dive timing gets more frequent, which makes lock-on answers even better — Scarlet Witch and squids don't care how often he swings in.",
+      boost: ["Scarlet Witch"] },
+  ],
+  "Jubilee": [
+    { name: "Hellfire Sparks", partner: "Blade",
+      effect: "Blade-charged fireworks add burn pressure to her plasmoids",
+      note: "Her damage threat rises; her 275 HP doesn't. Dive her exactly the same — Black Panther and Spider-Man remain the play, just respect the extra chip on the way in.",
+      boost: [] },
+    { name: "Vampiric Kin", partner: "The Hood (arrives in Season 9.5)",
+      effect: "Vampire-themed lifesteal link — sustain through her own damage",
+      note: "Lifesteal punishes slow chip damage. Burst her or CC her — Mantis sleep and Luna freeze switch the sustain off entirely. Until The Hood ships, she only gets the base effect.",
+      boost: ["Mantis", "Luna Snow"] },
+  ],
+  "Invisible Woman": [
+    { name: "United Siblings", partner: "Human Torch",
+      effect: "Bigger, stronger shields that boost damage shot through them",
+      note: "Poking into her shield now feeds her team. Go around or through — Iron Fist's tracking punches and committed dives ignore the shield wall entirely.",
+      boost: ["Iron Fist", "Psylocke"] },
+    { name: "First Family", partner: "Mister Fantastic & The Thing",
+      effect: "Fantastic Four synergy — team-wide durability boost",
+      note: "The whole FF package gets tankier, not slipperier. She's still the squishiest link — dive her first and the durability web unravels.",
+      boost: [] },
+  ],
+  "Iron Man": [
+    { name: "Gamma Charge", partner: "Hulk",
+      effect: "Gamma-overcharged armor — a fatter health bar in hover",
+      note: "The bonus health blunts flat burst, so percent-based damage rises in value — the counter list below swaps accordingly. Hitscan still wins, just commit to finishing.",
+      boost: ["The Punisher"],
+      swaps: [{ r: "D", out: "Hawkeye", in: ["Scarlet Witch", "Percent damage chews through the gamma health bonus that blunts normal burst"] }] },
+    { name: "Thunder Overdrive", partner: "Thor",
+      effect: "Thor-charged repulsors — heavier poke from the sky",
+      note: "Bigger beams mean he holds angles longer, which makes shields and blind more valuable while your hitscan lines him up.",
+      boost: ["Cloak & Dagger"] },
+  ],
+  "Magneto": [
+    { name: "Metallic Chaos", partner: "Scarlet Witch",
+      effect: "Chaos-infused metal — empowered ring toss and burst",
+      note: "His burst threat rises but the shield game is unchanged — Wolverine still shreds him, and out-shielding him with Strange still wins the front line.",
+      boost: [] },
+  ],
+  "Angela": [
+    { name: "Odin's Unacknowledged", partner: "Loki",
+      effect: "A second charge on her forward illusion thrust — near-constant harassment pressure",
+      note: "More frequent pokes, same squishy frame the moment it whiffs. Mantis sleep and Luna Snow freeze still shut her down mid-thrust — she just gets to try it more often before you punish her.",
+      boost: ["Mantis", "Luna Snow"] },
+    { name: "Asgardians of the Galaxy", partner: "Star-Lord",
+      effect: "Reveal plus a slam that grants Bonus Health scaling with enemies hit",
+      note: "The bonus health only shows up after she lands the slam on multiple targets — burst her on approach before she gets there. Hela and the Punisher's ranged pressure still catch her mid-walk long before she's in slam range.",
+      boost: [] },
+  ],
+  "Captain America": [
+    { name: "Voltaic Union", partner: "Thor",
+      effect: "Sentinel Strike becomes a piercing Lightning Shield throw with an AoE burst on every hit",
+      note: "More reliable poke and prep damage before he engages, but it doesn't change his combat identity — he still has to close the gap to matter. Mantis sleep and Luna Snow freeze catch him exactly the same on the approach.",
+      boost: ["Mantis", "Luna Snow"] },
+    { name: "Stars Aligned", partner: "Winter Soldier",
+      effect: "A mutual rally with Winter Soldier — both charge together, granting nearby allies Bonus Health and speed",
+      note: "The payoff is big, but the cast is a commitment — CC him before the charge lands and the whole play fizzles. Emma Frost's lockdown and Hulk's stuns punish the wind-up hard.",
+      boost: ["Emma Frost", "Hulk"] },
+  ],
+  "Devil Dinosaur": [
+    { name: "Surf & Turf", partner: "Jeff the Land Shark",
+      effect: "Jeff rides atop him for shared damage reduction and continuous healing",
+      note: "Flat damage reduction blunts burst, but percent-health shred ignores it entirely. Wolverine's stacks still whittle him down at the same rate no matter how much armor Jeff throws on.",
+      boost: ["Wolverine"] },
+    { name: "Primal Punishment", partner: "The Punisher",
+      effect: "Gains twin bleed cannons and can carry Punisher, soaking a share of his damage",
+      note: "The cannons are new chip damage, not a new escape. He's still the same lumbering hitbox up close — Magik's portals still dodge his grab and burst him down before the bleed matters.",
+      boost: ["Magik"] },
+  ],
+  "Doctor Strange": [
+    { name: "Gamma Maelstorm", partner: "Hulk",
+      effect: "Maelstrom of Madness charges faster and drops its anti-heal curse",
+      note: "Faster charge means less time to react before the ult drops. Mantis sleep and Luna Snow freeze are your real answers now that the anti-heal is gone and enemy healers can just out-heal the rest.",
+      boost: ["Mantis", "Luna Snow"] },
+    { name: "Psionic Vortex", partner: "Invisible Woman",
+      effect: "Maelstrom pulls enemies in and grants him Bonus Health scaling with the damage it deals",
+      note: "The health bump only kicks in once the vortex is already live — burst or displace him before he casts and none of it matters. Wolverine and the Punisher still punish him the instant the shield drops.",
+      boost: [] },
+  ],
+  "Emma Frost": [
+    { name: "Iced Out Diamond", partner: "Luna Snow",
+      effect: "Diamond Form applies Slow to everything she hits, including Telepathic Pulse",
+      note: "The extra slow makes her scarier once she's in your face, but getting there is still the hard part — she walks in at the same crawl. Hawkeye and Hela punish that approach exactly as hard as before.",
+      boost: ["Hawkeye", "Hela"] },
+    { name: "Spirit Breaker", partner: "Mantis",
+      effect: "Shattering an enemy's sentience grants Bonus Health and cuts Psychic Spear's cooldown",
+      note: "It's a sustain tool, not an escape — she still has to land the grab first. Invisible Woman's push and Loki's clone baits still deny that setup before any of the bonus health matters.",
+      boost: [] },
+  ],
+  "Groot": [
+    { name: "Wild Wall", partner: "Mantis",
+      effect: "Walls evolve after healing a threshold amount, boosting their healing output further",
+      note: "Tougher, better-healing walls make punching through them less appealing — go around instead. Venom ignoring the wall entirely and diving what's behind it is an even better answer than usual.",
+      boost: ["Venom"] },
+    { name: "Bubble Buddies", partner: "Jeff the Land Shark",
+      effect: "Retreating into his shield converts excess healing into Bonus Health",
+      note: "It's a panic button, not a fight-winner — he's doing nothing offensive while bubbled. Luna Snow's freeze and Mantis's sleep land the instant he pops back out, before the bonus health buys him anything.",
+      boost: ["Luna Snow", "Mantis"] },
+  ],
+  "Hulk": [
+    { name: "Savage Slam", partner: "Captain America",
+      effect: "Ground Slam applies Vulnerability to everyone it hits",
+      note: "The vulnerability window helps your team punish his landing, but it doesn't change what punishes him — Wolverine's percent shred and the Punisher's hitscan still tear through that giant HP bar exactly as fast.",
+      boost: ["Wolverine"] },
+    { name: "Gamma Fastball", partner: "Wolverine",
+      effect: "Unlocks Fastball Special — Hulk can launch Wolverine forward while entering his own Furious state",
+      note: "One CC on the leap now denies two divers instead of one, which makes shutting it down even more valuable. The Thing's suppression and Emma Frost's lockdown stop the launch before either of them lands.",
+      boost: ["The Thing", "Emma Frost"] },
+  ],
+  "Peni Parker": [
+    { name: "Vibranium Mech", partner: "Black Panther",
+      effect: "Cyber-Web Cluster gains a frontal Vibranium Shield and costs less energy to fire",
+      note: "The shield only covers what's directly in front of her — it does nothing about the sky. Iron Man still flies clean over the entire web network, shield or no shield.",
+      boost: ["Iron Man"] },
+    { name: "Rocket Network", partner: "Rocket Raccoon",
+      effect: "Her nest self-heals and Rocket's ability adds extra spider-drones and mines to the field",
+      note: "A denser, self-repairing nest is more mines to trigger, not a smarter one. Squirrel Girl's bouncing AoE still clears the whole field from total safety, and now there's simply more for it to detonate.",
+      boost: ["Squirrel Girl"] },
+  ],
+  "Rogue": [
+    { name: "Mr. & Mrs. X", partner: "Gambit",
+      effect: "Every attack triggers a kinetic explosion that damages nearby enemies and heals nearby allies",
+      note: "The self-sustain makes raw burst less reliable — she can heal off her own attacks mid-fight. Mantis sleep and Luna Snow freeze end the engage outright instead of racing a damage check she can out-heal.",
+      boost: ["Mantis", "Luna Snow"] },
+    { name: "Explosive Entanglement", partner: "Magneto",
+      effect: "Defensive Stance's damage reduction is drastically boosted, and absorbed damage converts into a stronger Southern Brawl",
+      note: "She has to stand still and activate the stance for any of this to matter. Winter Soldier's hook still yanks her out of it before the damage reduction or the payoff ever kicks in.",
+      boost: ["Winter Soldier"] },
+  ],
+  "The Thing": [
+    { name: "Two in One", partner: "Human Torch",
+      effect: "Human Torch can slam him down to trigger his flaming enhanced state, and every hit gains splash damage",
+      note: "More AoE on his punches doesn't give him reach — he's still grounded and slow. Storm remains completely untouchable in the air, splash radius or not.",
+      boost: [] },
+    { name: "Unbreakable Forces", partner: "Invisible Woman",
+      effect: "Psionic Armor is fortified, pulsing out area healing and converting more missing Health into Bonus Health",
+      note: "Flat armor and pulse healing don't slow down a percent-based shred. Wolverine tears through the extra layer at the same rate he tears through everything else.",
+      boost: ["Wolverine"] },
+  ],
+  "Thor": [
+    { name: "Ragnarok Rebirth", partner: "Hela",
+      effect: "A KO from either of them instantly revives Thor at full Bonus Health with Continuous Healing",
+      note: "The revive only fires if he's near a kill when it happens — isolate him from the fight and the safety net never triggers. Groot's walls trapping him deep in your team with no escape route deny the setup entirely.",
+      boost: ["Groot"] },
+    { name: "Divine Armory", partner: "Angela",
+      effect: "Leaping to his Thunder Spear's explosion now grants Bonus Health",
+      note: "The health only comes after the leap lands — stop the setup and there's nothing to punish. Wolverine and Hela still catch him during the wind-up before any of the bonus health matters.",
+      boost: [] },
+  ],
+  "Venom": [
+    { name: "Blood Leech", partner: "Blade",
+      effect: "Cellular Corrosion continuously siphons Health from every tethered target while active",
+      note: "It's flat lifesteal, and flat sustain doesn't stop percent damage. Wolverine and Scarlet Witch's lock-on burn still melt through his HP bar at the same rate regardless of what he's draining back.",
+      boost: ["Wolverine", "Scarlet Witch"] },
+    { name: "Abyssal Flames", partner: "Phoenix",
+      effect: "Dark Predation becomes a sweeping Avian Claw that stacks Sparks toward a detonation",
+      note: "More burst on the swing-in doesn't change the fact that he has to swing in. Mantis sleep and Luna Snow freeze stop him before the claw ever connects, Sparks and all.",
+      boost: ["Mantis", "Luna Snow"] },
+  ],
+  "Black Cat": [
+    { name: "Feline Alliance", partner: "Black Panther",
+      effect: "Her Vibranium Energy explosion can trigger any time, no longer gated behind taking damage first",
+      note: "It's a panic button on a shorter leash now, not a new engage. Emma Frost still catches her the instant she commits, before the explosion buys her the speed and health to get away.",
+      boost: ["Emma Frost"] },
+    { name: "Binding Tides", partner: "Spider-Man",
+      effect: "Spider-Web Grapple can immobilize an already-marked enemy on a second hit",
+      note: "The lockdown only matters if she's already landed the first mark and survived to land the second. Winter Soldier's hook interrupts that whole sequence before the combo ever starts.",
+      boost: ["Winter Soldier"] },
+  ],
+  "Black Panther": [
+    { name: "Damisa-Yao", partner: "Storm",
+      effect: "Storm launches enemies within range of his elemental burst toward him",
+      note: "The launch only fires if his combo actually connects, and he still has to dash in to start it. Peni Parker's mines punish that entry exactly as hard as before the launch effect is added.",
+      boost: [] },
+    { name: "Dimensional Shortcut", partner: "Magik",
+      effect: "His teleport sequence can now be manually canceled mid-transit",
+      note: "Canceling the teleport doesn't erase the dash he took to get there. Peni Parker's mines and Emma Frost's CC still catch the reset chain on the way in — he just has one more button to press while it happens.",
+      boost: [] },
+  ],
+  "Black Widow": [
+    { name: "Allied Agents", partner: "Hawkeye",
+      effect: "Landing a critical hit prevents her Focused state from expiring, letting her chain enhanced shots indefinitely",
+      note: "The chain only holds together as long as she keeps landing crits uninterrupted. Spider-Man and Black Panther closing the distance breaks her line of sight before the streak ever gets going.",
+      boost: ["Spider-Man", "Black Panther"] },
+    { name: "Burning Bullets", partner: "Phoenix",
+      effect: "Her Plasma Cannon becomes a hitscan laser and gains a second charge",
+      note: "A second charge is more chip damage, not more survivability. Psylocke's stealth-burst approach still ends her before she gets to spend either charge.",
+      boost: ["Psylocke"] },
+  ],
+  "Blade": [
+    { name: "Blade of Khonshu", partner: "Moon Knight",
+      effect: "Each Whirlwind Slash generates an extra bouncing Darkmoon Blade",
+      note: "More projectiles off the dash don't change the fact that the dash itself is the tell. Hela still pokes him out before that dash ever reaches her, extra blades and all.",
+      boost: [] },
+    { name: "Bleed for Battle", partner: "Captain America",
+      effect: "Taking a critical hit instantly triggers Bloodline Awakening with bonus stacks",
+      note: "That comeback mechanic needs him to survive a crit first — burst him down before the threshold instead of trading into it. Hawkeye and Hela still delete him during the same predictable approach.",
+      boost: ["Hawkeye", "Hela"] },
+  ],
+  "The Punisher": [
+    { name: "Ammo Overload", partner: "Rocket Raccoon",
+      effect: "His device grants Infinite Ammo and Faster Firing while active",
+      note: "Longer turret uptime means he's parked in the open longer, not that he's harder to reach. Spider-Man and Black Panther still close the distance and delete the immobile turret just as fast.",
+      boost: ["Spider-Man", "Black Panther"] },
+    { name: "Bestial Hunt", partner: "Daredevil",
+      effect: "His piercing bullet moves faster through summoned walls and shields",
+      note: "Chipping through Strange's shield and Magneto's bubble is new — dodging Venom's dive isn't. He still has to stand still and aim to use any of it, so the turret-punish game plan barely changes.",
+      boost: [] },
+  ],
+  "Winter Soldier": [
+    { name: "Timeless Veterans", partner: "The Punisher",
+      effect: "His bionic arm burst applies a Grounded effect and knocks enemies back even further",
+      note: "More payoff on the hook doesn't make the hook safer to throw. Emma Frost's lockdown still punishes the commitment before the extra knockback ever lands.",
+      boost: ["Emma Frost"] },
+    { name: "Expert Instinct", partner: "Elsa Bloodstone",
+      effect: "Bonus Health from Ceaseless Charge is increased",
+      note: "The snowball needs kills to start rolling — deny him the first one and none of the extra health matters. Hela and Hawkeye still pick him off from beyond hook range before he ever gets a stack.",
+      boost: ["Hela", "Hawkeye"] },
+  ],
+  "Wolverine": [
+    { name: "Pair of Threes", partner: "Gambit",
+      effect: "Continuous Healing for the full duration of his Kinetic Enhancement",
+      note: "The healing only runs while the ability's active — interrupt the leap that starts it and there's nothing left to heal through. Emma Frost's CC and The Thing's suppression still stop him before the window opens.",
+      boost: ["Emma Frost", "The Thing"] },
+    { name: "Blast Stash", partner: "Cyclops",
+      effect: "His Kinetic Claws lunge attack becomes permanently active",
+      note: "It extends his reach a little, not his class. Hela and Storm still keep him well outside real threat range — he's still melee-only, just with a slightly longer leash.",
+      boost: [] },
+  ],
+  "Cyclops": [
+    { name: "Slim and Red", partner: "Phoenix",
+      effect: "Igniting a target with Ricochet Force triggers bonus burst damage on follow-up hits",
+      note: "Bigger numbers at range don't fix his lack of an escape. Spider-Man and Black Panther still close on him just as fast — he's now hitting harder in the second before he dies to the dive.",
+      boost: [] },
+    { name: "Kinetic Bros", partner: "Gambit",
+      effect: "His enhanced-state movement speed and jump height are increased further",
+      note: "A bigger mobility burst gives him a second escape tool on top of his glide, so dive counters need to close the gap faster than before. Spider-Man and Black Panther still get there before the kinetic energy builds.",
+      boost: ["Spider-Man", "Black Panther"] },
+  ],
+  "Daredevil": [
+    { name: "Comprehensive Defense", partner: "Iron Fist",
+      effect: "Objection! deflects incoming Projectiles from all directions and recovers Fury on a successful deflect",
+      note: "The deflect only stops projectiles, not hitscan. The Punisher's rifle still lands clean through it, and Hela's beam-based poke was never something to deflect in the first place.",
+      boost: ["The Punisher", "Hela"] },
+    { name: "Devilish Affair", partner: "Black Widow",
+      effect: "Devil's Chain's damage radius is expanded and landing hits recovers Fury",
+      note: "A bigger swing radius still means standing in the open to use it. Emma Frost's CC still catches him the moment he commits to that aggression, wider hitbox or not.",
+      boost: ["Emma Frost"] },
+  ],
+  "Deadpool": [
+    { name: "Gumbo Chimichangas", partner: "Gambit",
+      effect: "His kinetic landing now Stuns enemies caught in the blast radius",
+      note: "A stun on landing raises the stakes for anyone still in range when he drops — which makes stopping him before he lands even more valuable. The Thing's suppression denying the dive outright is the cleanest answer.",
+      boost: ["The Thing"] },
+    { name: "\u201cHel-Yeah, Honey\u201d", partner: "Hela",
+      effect: "Both his Desert Eagles and Katanas can be upgraded an extra time",
+      note: "Bigger numbers on the same short-range kit don't change his range problem. Hela, Iron Man, and Black Widow all still outrange him regardless of which weapon upgrade he's running.",
+      boost: [] },
+  ],
+  "Elsa Bloodstone": [
+    { name: "Prehistoric Trap", partner: "Devil Dinosaur",
+      effect: "She can store and deploy two Smoky Snares instead of one",
+      note: "Two traps still need time to set and enemies to walk into them. Emma Frost catching her before the snares go down denies twice the setup now, not just one.",
+      boost: ["Emma Frost"] },
+    { name: "Loudmouth Mercs", partner: "Deadpool",
+      effect: "Instinct stack acquisition rate is significantly boosted",
+      note: "A faster ramp means the window to stop her before she snowballs is shorter, not gone. Hawkeye deleting her at zero instinct is more valuable than ever now that zero doesn't last long.",
+      boost: ["Hawkeye"] },
+  ],
+  "Hawkeye": [
+    { name: "Moonlit Slash", partner: "Cloak & Dagger",
+      effect: "Moonlit Slash chains into a three-hit combo of sweeping light blades",
+      note: "More ranged pressure doesn't give him any way to survive someone standing next to him. Spider-Man and Black Panther still close the gap in a second — snipers hate this trick no matter how the blade chains.",
+      boost: [] },
+    { name: "Senbonzakura Strike", partner: "Psylocke",
+      effect: "Psionic Arrows nock faster and explode on impact",
+      note: "Banking a bigger volley means a longer charge window before he releases it. Spider-Man closing the distance during that charge denies the whole payoff before a single arrow flies.",
+      boost: ["Spider-Man"] },
+  ],
+  "Iron Fist": [
+    { name: "Kumiho Palm", partner: "White Fox",
+      effect: "The lock-on distance for Yat Jee Chung Kuen is significantly increased",
+      note: "A longer lock-on range means he can start the punch chain from further out, but interrupting it works exactly the same. Luna Snow's freeze still breaks the lock and strands him wherever he committed from.",
+      boost: ["Luna Snow"] },
+    { name: "Iron & Stone", partner: "The Thing",
+      effect: "His uppercut can chain directly into a sweeping leg sweep follow-up",
+      note: "One more hit in the combo doesn't change the fact that it's still a melee combo. Namor's squids melt him mid-animation regardless of how many hits are chained onto it.",
+      boost: [] },
+  ],
+  "Magik": [
+    { name: "Chain of Cyttorak", partner: "Doctor Strange",
+      effect: "Chain of Cyttorak can tether an entire group of enemies at once, pulling them all to one point",
+      note: "A single-target CC turning into a team wipe setup raises the stakes of letting her get there. Emma Frost catching her between portal hops and The Thing's suppression canceling the aggression matter far more now.",
+      boost: ["Emma Frost", "The Thing"] },
+    { name: "Void Pentagram", partner: "The Hood",
+      effect: "Casting Stepping Discs refunds energy, letting her summon Limbo Demons more often",
+      note: "More demons on the field is more pressure to clear, but every disc entry is still the same tell. Peni Parker's mines punish each stepping-disc engage just as hard, now with more of them to punish.",
+      boost: ["Peni Parker"] },
+  ],
+  "Mister Fantastic": [
+    { name: "Fantastic Amplifier", partner: "Rocket Raccoon",
+      effect: "Brainiac Bounce now Launches enemies it hits",
+      note: "A launch effect adds control, not range. Hela and Storm still out-poke his stretch and chip the inflated form down from well outside his reach.",
+      boost: [] },
+    { name: "Clobbering Research Dept.", partner: "The Thing",
+      effect: "Distended Grip becomes a charged slam that grants Bonus Health and Launches enemies at full charge",
+      note: "The charge only pays off if it actually lands — Hela's poke pops his elastic health bar well before he closes the distance to throw it.",
+      boost: ["Hela"] },
+  ],
+  "Moon Knight": [
+    { name: "Luminous Moon", partner: "Cloak & Dagger",
+      effect: "The Phased dash goes further and the healing wave that follows is stronger and wider",
+      note: "A bigger heal wave doesn't help him survive being caught. Venom still dives him and he folds the same way under direct pressure, extended dash or not.",
+      boost: [] },
+    { name: "Blood Moon", partner: "Elsa Bloodstone",
+      effect: "Triggering his Ankh Trap summons multiple Talons of Khonshu instead of one",
+      note: "A bigger payoff for the trap means a bigger reason to deny the setup entirely. Spider-Man getting on top of him before a single ankh lands is more valuable than ever.",
+      boost: ["Spider-Man"] },
+  ],
+  "Namor": [
+    { name: "Chilling Charisma", partner: "Luna Snow",
+      effect: "Frost Tide gains a charge and crashes down for area damage and Slow at max range",
+      note: "More range control from a hero who already wins at range means shutting down his zone matters even more. Hela out-ranging him and one-shotting the squids for free is still the cleanest answer.",
+      boost: ["Hela"] },
+    { name: "Gamma Monstro", partner: "Hulk",
+      effect: "A water barrier accelerates the Gamma Monstro's cooldown and grants it a Damage Boost",
+      note: "More pets on the field is more pets to clear, not a harder problem. The Punisher still deletes squids and Monstros alike instantly with splash while out-poking Namor himself.",
+      boost: ["The Punisher"] },
+  ],
+  "Phoenix": [
+    { name: "Circle of Life", partner: "Hela",
+      effect: "Every blast in her detonation sequence applies multiple stacks of Sparks",
+      note: "A bigger burst combo is still a telegraphed one. Emma Frost's CC punishing her predictable burst windows matters just as much when the payoff for landing it is larger.",
+      boost: ["Emma Frost"] },
+    { name: "Telekinetic Beatdown", partner: "Rogue",
+      effect: "Gains an additional Spark stack, more healing, and a higher maximum strike count",
+      note: "The bigger combo still needs the telekinetic shockwave to land first. Mantis sleeping her before the Dark Phoenix dive connects shuts the whole sequence down before it starts.",
+      boost: ["Mantis"] },
+  ],
+  "Psylocke": [
+    { name: "Light & Dark Arts", partner: "Cloak & Dagger",
+      effect: "The Shadow Domain's radius expands, and re-entering Stealth refires the Light Darts",
+      note: "A bigger domain and more darts don't hide her from tracking. Namor's squids still find her through stealth and dashes exactly as reliably as before.",
+      boost: ["Namor"] },
+    { name: "Mental Projection", partner: "Emma Frost",
+      effect: "She can instantly swap places with her illusion",
+      note: "The swap gives her an escape after she reveals — but only if she has line of sight to the illusion. Winter Soldier's hook still catches her mid-dash before the swap is ever an option.",
+      boost: ["Winter Soldier"] },
+  ],
+  "Scarlet Witch": [
+    { name: "Sorcerers Supreme", partner: "Doctor Strange",
+      effect: "Her maximum Chaos Energy pool increases and Chaos Control generates energy faster while attacking",
+      note: "A faster-filling pool means less time before she's a threat again — burst her down while it's still building. Hawkeye deleting her before the chaos field ramps matters more now that the ramp is quicker.",
+      boost: ["Hawkeye"] },
+    { name: "Hex Fireworks", partner: "Jubilee",
+      effect: "She receives constant healing from firework energy while using Mystic Projection",
+      note: "The sustain only matters if she's allowed to keep channeling. Cloak & Dagger's blind still breaks her lock-on entirely, healing or not, and Mantis sleeping her mid-'NO MORE' still ends it outright.",
+      boost: ["Cloak & Dagger"] },
+  ],
+  "Squirrel Girl": [
+    { name: "Squirrel Missile", partner: "Iron Man",
+      effect: "Squirrel Blockade simultaneously fires a homing Squirrel Missile",
+      note: "A second projectile is more spam to punish, not a new answer to being caught. Venom still dives her and finds no real defense waiting for him up close.",
+      boost: [] },
+    { name: "ESU Alumnus", partner: "Spider-Man",
+      effect: "Webbed Acorn leaves a sticky Web Area that Slows and eventually Stuns lingering enemies",
+      note: "The zone control is real, but it still needs the acorn to land first. Hela's hitscan and Spider-Man's dive still reach her before the web field has anyone to trap.",
+      boost: [] },
+  ],
+  "Star-Lord": [
+    { name: "Flora Munitions", partner: "Groot",
+      effect: "Thorn Snares deploy in greater numbers with higher trigger damage",
+      note: "Managing snare placement adds one more thing for him to juggle mid-fight. Winter Soldier's hook still ends a dodge-roll mid-animation regardless of how many thorns are on the ground.",
+      boost: ["Winter Soldier"] },
+    { name: "Star-Soul", partner: "Adam Warlock",
+      effect: "Telekinetic Beacon's cooldown shortens every time he participates in a KO",
+      note: "A softer respawn penalty doesn't change what happens in the fight itself. Hela still out-duels him at range and Mantis's sleep still cancels Galactic Legend the same as always.",
+      boost: [] },
+  ],
+  "Storm": [
+    { name: "God of Thunder", partner: "Thor",
+      effect: "Wind Blade becomes a hitscan lightning beam that detonates on a hit",
+      note: "Guaranteed hits make her more dangerous to everyone else, but they don't make her any harder to hit back. The Punisher and Hela still delete the slow-moving weather goddess out of the air the same as ever.",
+      boost: [] },
+    { name: "Jaws of Fate", partner: "Jeff the Land Shark",
+      effect: "Jeff can swim inside her Omega Hurricane, generating a localized Jeff-nado",
+      note: "A bigger ult payoff raises the cost of letting it ramp up. Mantis sleeping her before the ult starts and Luna Snow's freeze mid-spin are both more valuable now that stopping it denies more.",
+      boost: ["Mantis", "Luna Snow"] },
+  ],
+  "Adam Warlock": [
+    { name: "Cosmic Cyclone", partner: "Storm",
+      effect: "Teammates linked by Soul Bond additionally gain a Damage Boost",
+      note: "More value from staying alive means keeping him alive matters even more to his team — which also means killing him is worth even more to yours. Spider-Man's zero-mobility punish is still a free meal every dive.",
+      boost: ["Spider-Man"] },
+    { name: "Flawless Design", partner: "Ultron",
+      effect: "Cosmic Cluster creates an explosion on impact",
+      note: "An AoE burst on his poke doesn't give him a way to move. Black Panther still dashes onto him faster than Soul Bond can save him.",
+      boost: ["Black Panther"] },
+  ],
+  "Cloak & Dagger": [
+    { name: "Oblivion Shroud", partner: "The Hood",
+      effect: "Both veils widen and grant allies passing through a Damage Boost",
+      note: "Wider veils are a bigger team tool, not a defensive upgrade for them personally. Psylocke's burst still kills before the swap to Cloak, wide veil or not.",
+      boost: ["Psylocke"] },
+    { name: "Frozen Haven", partner: "Luna Snow",
+      effect: "The healing aura provided while Frozen becomes significantly stronger",
+      note: "They're still standing still and frozen in place to use it. Iron Fist's auto-tracking punches find them through the ice exactly as easily as before.",
+      boost: ["Iron Fist"] },
+  ],
+  "Gambit": [
+    { name: "Favorable Odds", partner: "Magneto",
+      effect: "The cards' magnetic poles reverse and slam back together for a second burst of healing and damage",
+      note: "A bigger payoff for the full combo means denying the setup is worth more than ever. Spider-Man getting on him before a single card charges still shuts the whole thing down.",
+      boost: ["Spider-Man"] },
+    { name: "Sparkling Staff", partner: "Jubilee",
+      effect: "Both Bayou Bash and Big Easy Impact gain an additional Continuous Healing aura",
+      note: "More sustain in melee range doesn't fix the setup he needs at mid-range first. Mantis sleeping him still cancels the charged plays before the healing aura ever turns on.",
+      boost: ["Mantis"] },
+  ],
+  "Jeff the Land Shark": [
+    { name: "Guardian of the Deep", partner: "Venom",
+      effect: "Symbiote tendrils can also lash out at nearby enemies, dealing continuous damage",
+      note: "A little offense doesn't change his hitbox. Storm's AoE aura still clips the tiny shark constantly, tendrils or not.",
+      boost: [] },
+    { name: "Mr Pool's Interdimensional Toy Box", partner: "Deadpool",
+      effect: "The Deadpool Plushie's Taunt is stronger and it damages enemies caught in its radius",
+      note: "A meaner plushie is still a small, easy-to-hit target. Squirrel Girl's bouncing splash finds the shark everywhere it hides, taunt or no taunt.",
+      boost: ["Squirrel Girl"] },
+  ],
+  "Loki": [
+    { name: "Vibrant Vitality", partner: "Mantis",
+      effect: "Deploying Regeneration Domain releases a shockwave that damages and launches enemies",
+      note: "A launch effect on his healing zone doesn't hide the clones any better. Storm's constant AoE still shreds through them and exposes the real Loki just as fast.",
+      boost: ["Storm"] },
+    { name: "Villain's Illusion", partner: "Hela",
+      effect: "Taking lethal damage while transformed reverts him back to Loki with some Health instead of a KO",
+      note: "The death-cheat only fires on a killing blow — CC that disables him without needing one sidesteps it entirely. Mantis sleeping the real Loki still ends the show outright, revive or not.",
+      boost: ["Mantis"] },
+  ],
+  "Luna Snow": [
+    { name: "Atlas Bond", partner: "White Fox",
+      effect: "The spirit fox auto-returns after max range, and its self-cleanse effect is retained",
+      note: "The cleanse only fires when she casts the fox, not on a timer — Cloak & Dagger's blind and repeated dives still catch her in the gaps between casts exactly like before.",
+      boost: [] },
+    { name: "Duality Dance", partner: "Adam Warlock",
+      effect: "Scoring critical hits with Light & Dark Ice reduces Absolute Zero and Ice Arts cooldowns",
+      note: "Faster cooldowns don't help if she's dead before she gets to use them. Black Panther's dash burst still beats her self-sustain before any of the extra uptime matters.",
+      boost: ["Black Panther"] },
+  ],
+  "Mantis": [
+    { name: "Star Blossom", partner: "Star-Lord",
+      effect: "Using Healing Flower on any teammate instantly triggers the enhanced spell field",
+      note: "A bigger heal aura doesn't help her dodge a dive. Venom still eats the sleep so his allies don't, and Psylocke's stealth entry still sidesteps the dart entirely.",
+      boost: [] },
+    { name: "Vitality Pact", partner: "Adam Warlock",
+      effect: "Her soul state can forge a Soul Bond that heals over time and distributes damage taken",
+      note: "The soul state buys extra healing time after she 'dies,' but she's doing nothing offensive while it's active — no sleep, no cleanse. Black Panther's dash resets already out-tempo her single CC, and now there's an extra window where she contributes nothing at all.",
+      boost: ["Black Panther"] },
+  ],
+  "Rocket Raccoon": [
+    { name: "Planet X Pals", partner: "Groot",
+      effect: "He can ride on Groot's shoulders, and the Thorny Spores field lasts longer",
+      note: "Riding along keeps him near a tank, but it doesn't hide him from stealth. Psylocke still finds him, bursts him, and breaks the revive beacon regardless of who he's standing next to.",
+      boost: ["Psylocke"] },
+    { name: "Mammalian Bond", partner: "Squirrel Girl",
+      effect: "The maximum charge count for his Vitality Acorns is increased",
+      note: "More charges means more healing over a fight, not a bigger hitbox. Storm's AoE still catches the tiny trash panda along walls and ceilings the same as always.",
+      boost: ["Storm"] },
+  ],
+  "Ultron": [
+    { name: "Stark Protocol", partner: "Iron Man",
+      effect: "Imperative: Firewall fires homing missiles at enemies in range for area damage",
+      note: "More burst from the sky is still burst from the sky. Hela picking him off from spawn matters even more now that letting him fire the missiles costs your team more.",
+      boost: ["Hela"] },
+    { name: "SP//DR Sync", partner: "Peni Parker",
+      effect: "Imperative: Firewall applies to all drones simultaneously",
+      note: "A bigger drone swarm is a bigger target, not a safer one. The Punisher's hitscan still turns the whole swarm into scrap in the same breath it always has.",
+      boost: ["The Punisher"] },
+  ],
+  "White Fox": [
+    { name: "Lucky Loan", partner: "Black Cat",
+      effect: "Using the Orb grants a duration of free ability use with no Spirit Tail Energy cost",
+      note: "More free casts in the window doesn't change how slow she is to react in it. Psylocke's stealth burst still beats her charm reaction time before she gets to spend any of it.",
+      boost: ["Psylocke"] },
+    { name: "Psionic Fox", partner: "Psylocke",
+      effect: "Fox Form Awakening's cooldown is drastically reduced",
+      note: "More frequent access to Fox Form means more approach windows to punish, not fewer. Hela still bursts her at a range where the charm never lands, cooldown or no cooldown.",
+      boost: ["Hela"] },
+  ],
+  "Hela": [
+    { name: "Hel Tendrils", partner: "Venom",
+      effect: "Piercing Night fires a dense volley of Nightsword Thorns that restore Health on direct hits",
+      note: "Lifesteal from a volley still requires her to be in range to fire it, and pulling enemies in with tendrils means she's just as exposed as they are. Spider-Man and Psylocke still force the close-range fight she's worst at.",
+      boost: ["Spider-Man", "Psylocke"] },
+    { name: "Deep Wrath", partner: "Namor",
+      effect: "Every attack during Goddess of Death spawns an Undead Monstro at the point of impact",
+      note: "More Monstros cluttering the field is more for a mobile diver to weave through, not less. Star-Lord's dodge-heavy aim still duels through the chaos untouched.",
+      boost: ["Star-Lord"] },
+  ],
+  "Human Torch": [
+    { name: "Fiery Sparks", partner: "Jubilee",
+      effect: "Landing a Firework Spark on an enemy grants him Bonus Health",
+      note: "The health only comes after he lands a hit — burst him out of the sky before he gets the chance and none of it matters. Hela still picks him off from any distance the same as before.",
+      boost: ["Hela"] },
+    { name: "Storming Ignition", partner: "Storm",
+      effect: "Her Omega Hurricane ignites into a Burning Hurricane on contact with his Flame Tornado",
+      note: "A bigger combo payoff is more reason to shoot him down before it ever lines up. Devil Dinosaur's Impact Beam swatting the built-in anti-flier target matters even more now.",
+      boost: ["Devil Dinosaur"] },
+  ],
+};
+
+const COUNTERS = {
+  "Angela": {
+    V: [
+      ["Doctor Strange", "Shield walls off her engage and wins the front-line trade"],
+      ["Peni Parker", "Mine field punishes her every time she commits to melee"],
+      ["Magneto", "Bubbles her focus target and shrugs off her ribbon pressure"],
+    ],
+    D: [
+      ["The Punisher", "Sustained hitscan melts her before she can close distance"],
+      ["Hela", "Out-ranges her completely and bursts her during her approach"],
+      ["Storm", "Kites above her reach while chipping with AoE"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze stops her dive cold mid-engage"],
+      ["Mantis", "Sleep cancels her aggression and sets up the focus kill"],
+      ["Invisible Woman", "Push knocks her off her target before she snowballs"],
+    ],
+  },
+  "Captain America": {
+    V: [
+      ["Hulk", "Out-brawls him and his clap stuns through the shield dance"],
+      ["The Thing", "Suppression field shuts down Cap's leap-heavy mobility"],
+      ["Emma Frost", "CC chain locks him down whenever he overextends"],
+    ],
+    D: [
+      ["Scarlet Witch", "Percent damage melts him no matter how he angles his shield"],
+      ["Storm", "Stays airborne where his low damage can't trade back"],
+      ["The Punisher", "Constant hitscan pressure he can't block forever"],
+    ],
+    S: [
+      ["Mantis", "Sleep ends his backline harassment instantly"],
+      ["Luna Snow", "Freeze locks him out of his shield and escape"],
+      ["Invisible Woman", "Push denies his dive and peels him off supports"],
+    ],
+  },
+  "Devil Dinosaur": {
+    V: [
+      ["Groot", "Walls split him from his healers and trap him in your team"],
+      ["Peni Parker", "Mines punish every leap and his huge frame eats full damage"],
+      ["Magneto", "Bubbles whoever he bites and out-paces his slow pressure"],
+    ],
+    D: [
+      ["Magik", "Hardest counter by win rate — portals dodge his grab, then burst"],
+      ["Wolverine", "Percent-HP shred on the biggest health pool in the game"],
+      ["Storm", "Stays out of melee range and bleeds him down from the air"],
+    ],
+    S: [
+      ["Rocket Raccoon", "Hard to catch, and sustained healing outlasts his brawl loop"],
+      ["Mantis", "Sleep cancels his Rampage momentum mid-ult"],
+      ["Luna Snow", "Freeze stops the stomp train and her ult out-heals his pressure"],
+    ],
+  },
+  "Doctor Strange": {
+    V: [
+      ["Thor", "Sustained brawl damage forces the shield down, then wins the trade"],
+      ["Venom", "Dives straight past him to the backline he's protecting"],
+      ["Hulk", "Breaks the shield with raw damage and clap-stuns the follow-up"],
+    ],
+    D: [
+      ["Wolverine", "Shreds him the moment his shield drops or he ports in"],
+      ["The Punisher", "Turret form eats the shield in seconds"],
+      ["Scarlet Witch", "Percent damage doesn't care about his big health pool"],
+    ],
+    S: [
+      ["Cloak & Dagger", "Blind denies his portal plays and Eye of Agamotto setups"],
+      ["Mantis", "Sleep interrupts his ult before souls separate"],
+      ["Luna Snow", "Freeze stops his flight engage and ult follow-up"],
+    ],
+  },
+  "Emma Frost": {
+    V: [
+      ["Magneto", "Shield blocks her beam and bubble saves her grab target"],
+      ["Doctor Strange", "Out-shields her short-range beam at the choke"],
+      ["The Thing", "Out-brawls her diamond form trades in close"],
+    ],
+    D: [
+      ["Hela", "Her beam is short range — Hela never lets her get there"],
+      ["Hawkeye", "Punishes her slow, walk-forward playstyle from a mile away"],
+      ["The Punisher", "Out-damages diamond form before she reaches the team"],
+    ],
+    S: [
+      ["Invisible Woman", "Push keeps your backline out of beam and grab range"],
+      ["Loki", "Clones bait out her psychic grab for free"],
+      ["Luna Snow", "Freeze interrupts her engage and her ult walk"],
+    ],
+  },
+  "Groot": {
+    V: [
+      ["Hulk", "Smashes through walls and out-trades him in the open"],
+      ["The Thing", "Closes the gap fast and brawls inside the wall maze"],
+      ["Venom", "Ignores his walls entirely and dives what's behind them"],
+    ],
+    D: [
+      ["Wolverine", "Classic tank shredder — his huge HP pool means nothing"],
+      ["Phoenix", "Percent burn burst melts him through wall cover"],
+      ["The Punisher", "Breaks walls and Groot down faster than he rebuilds"],
+    ],
+    S: [
+      ["Mantis", "Sleep stops his wall-trap combos before they start"],
+      ["Luna Snow", "Freeze locks him out of his ult and wall plays"],
+      ["Invisible Woman", "Push frees teammates caught in his wall traps"],
+    ],
+  },
+  "Hulk": {
+    V: [
+      ["The Thing", "Suppression denies his leap and out-CCs his clap"],
+      ["Emma Frost", "CC chain keeps the monster locked down"],
+      ["Peni Parker", "Mines punish every leap into your backline"],
+    ],
+    D: [
+      ["Wolverine", "The classic — percent damage shreds his giant HP bar"],
+      ["The Punisher", "His enormous hitbox is free real estate for hitscan"],
+      ["Hela", "Headshots that massive frame all day from range"],
+    ],
+    S: [
+      ["Mantis", "Sleep the leap, delete the Hulk"],
+      ["Luna Snow", "Freeze stops his dive and his ult momentum"],
+      ["Invisible Woman", "Push bounces his engage off your supports"],
+    ],
+  },
+  "Magneto": {
+    V: [
+      ["Venom", "Dives past his shields straight to the squishies"],
+      ["Doctor Strange", "Wins the shield war with better uptime"],
+      ["Hulk", "Forces cooldowns out fast, then punishes the gaps"],
+    ],
+    D: [
+      ["Wolverine", "Shields don't stop a lunging tank shredder"],
+      ["Scarlet Witch", "Percent damage chews through him between bubbles"],
+      ["The Punisher", "Breaks bubble and shield on cooldown with turret DPS"],
+    ],
+    S: [
+      ["Cloak & Dagger", "Blind ruins his Meteor M aim and beam pressure"],
+      ["Mantis", "Sleep him before the meteor gets fully charged"],
+      ["Rocket Raccoon", "Out-sustains his slow poke damage indefinitely"],
+    ],
+  },
+  "Peni Parker": {
+    V: [
+      ["Doctor Strange", "Shields the team through her mined choke point"],
+      ["Magneto", "Bubble and shield let the team walk the minefield safely"],
+      ["Hulk", "Leaps straight onto the nest and forces her out"],
+    ],
+    D: [
+      ["Iron Man", "Flies clean over the entire web network"],
+      ["The Punisher", "Out-ranges the nest and clears mines with splash"],
+      ["Squirrel Girl", "Bouncing AoE detonates mines from total safety"],
+    ],
+    S: [
+      ["Ultron", "Heals from the air where mines can't touch him"],
+      ["Invisible Woman", "Shield and push let allies survive nest pressure"],
+      ["Loki", "Clones eat mine triggers for free"],
+    ],
+  },
+  "Rogue": {
+    V: [
+      ["The Thing", "Suppression cancels her flying engage entirely"],
+      ["Peni Parker", "Mines punish her every time she commits in"],
+      ["Emma Frost", "CC locks her down before she can steal a fight"],
+    ],
+    D: [
+      ["The Punisher", "Hitscan tracks her flight path the whole way in"],
+      ["Hela", "Bursts her during the slow, telegraphed engage"],
+      ["Winter Soldier", "Hook yanks her out of the sky into your team"],
+    ],
+    S: [
+      ["Mantis", "Sleep her mid-flight and she drops like a rock"],
+      ["Luna Snow", "Freeze cancels her dive and her ult"],
+      ["Invisible Woman", "Push denies her grab on your backline"],
+    ],
+  },
+  "The Thing": {
+    V: [
+      ["Magneto", "Kites with shields — Thing has no answer at range"],
+      ["Doctor Strange", "Blocks his charge and out-values him at the choke"],
+      ["Groot", "Walls isolate him from his team with zero escape"],
+    ],
+    D: [
+      ["Storm", "He literally cannot touch a flier — free damage forever"],
+      ["Wolverine", "Shreds his big HP pool faster than he can brawl back"],
+      ["The Punisher", "Slow, grounded, huge — the dream hitscan target"],
+    ],
+    S: [
+      ["Luna Snow", "Freezes him at range where he has zero threat"],
+      ["Cloak & Dagger", "Phase escapes his charge, blind ruins his brawl"],
+      ["Invisible Woman", "Push keeps him permanently out of arm's reach"],
+    ],
+  },
+  "Thor": {
+    V: [
+      ["The Thing", "Suppression shuts down his dash-heavy kit"],
+      ["Emma Frost", "CC punishes his all-in Thorforce dumps"],
+      ["Groot", "Walls trap him deep in your team with no escape"],
+    ],
+    D: [
+      ["Wolverine", "Shreds his health pool through the bonus HP loop"],
+      ["Hela", "His lore counter and his range counter — poke he can't answer"],
+      ["The Punisher", "Out-damages his sustain at a range he can't contest"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze stops his dash chain mid-combo"],
+      ["Mantis", "Sleep ends his engage before the hammer lands"],
+      ["Invisible Woman", "Push interrupts his momentum and peels your backline"],
+    ],
+  },
+  "Venom": {
+    V: [
+      ["Peni Parker", "Mines and webs make his dive entry a death sentence"],
+      ["The Thing", "Suppression cancels his swing escape — no exit, no Venom"],
+      ["Emma Frost", "CC locks him down once his cooldowns are burned"],
+    ],
+    D: [
+      ["Namor", "Squids auto-track him the entire time he's in your backline"],
+      ["Wolverine", "Percent damage doesn't respect his bonus-health stalling"],
+      ["Scarlet Witch", "Lock-on percent damage melts his huge HP pool"],
+    ],
+    S: [
+      ["Mantis", "Sleep him when he dives, kill him before he swings out"],
+      ["Luna Snow", "Freeze denies the escape swing every single time"],
+      ["Invisible Woman", "Push bounces his dive and shields his target"],
+    ],
+  },
+  "Black Cat": {
+    V: [
+      ["Peni Parker", "Mined backline turns her flanks into suicide runs"],
+      ["Emma Frost", "CC catches her the instant she commits"],
+      ["The Thing", "Suppression cancels her mobility mid-engage"],
+    ],
+    D: [
+      ["The Punisher", "Hitscan tracks her through every acrobatic entry"],
+      ["Hela", "Bursts her squishy frame before she reaches the backline"],
+      ["Winter Soldier", "Hook interrupts her dash and drags her into the team"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze stops her cold mid-combo — her signature counter"],
+      ["Mantis", "Sleep sets up a free focus kill on her dive"],
+      ["Invisible Woman", "Push denies her kill confirm and peels the target"],
+    ],
+  },
+  "Black Panther": {
+    V: [
+      ["Peni Parker", "The classic — mines delete his dash-reset loops"],
+      ["The Thing", "Suppression breaks his spear-dash chain completely"],
+      ["Emma Frost", "One CC and his combo window is gone"],
+    ],
+    D: [
+      ["Namor", "Squids track him through every dash — he can't duel them"],
+      ["Winter Soldier", "Hook interrupts the reset chain and feeds him to the team"],
+      ["The Punisher", "Shotgun deletes a 275 HP diver at close range"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze breaks his combo and strands him in your team"],
+      ["Mantis", "Sleep on dive entry equals a free kill every time"],
+      ["Invisible Woman", "Push knocks him off his reset target"],
+    ],
+  },
+  "Black Widow": {
+    // Season 9 rework: sniper moved to her ultimate (no more baseline one-shot), added a
+    // Widow's Bite Slam melee option. Still a 275 HP backline pick sitting at F-tier (45.9%) —
+    // dive and stealth still beat her; she just isn't quite as helpless up close as before.
+    V: [
+      ["Doctor Strange", "Shield erases her sightlines and walks the team up"],
+      ["Magneto", "Shields negate her picks and eat her plasma-blast slow"],
+      ["Venom", "Dives her perch and out-brawls her new slam in melee"],
+    ],
+    D: [
+      ["Spider-Man", "Collapses on her before she can slam away — she still folds to dive"],
+      ["Black Panther", "Dashes through her sightline and bursts her down"],
+      ["Psylocke", "Stealth approach, burst, gone — she never lines up a shot"],
+    ],
+    S: [
+      ["Loki", "Clones bait her shots and waste her tempo"],
+      ["Invisible Woman", "Invisibility makes her sniping ult nearly worthless"],
+      ["Cloak & Dagger", "Blind erases her aim at the worst moments"],
+    ],
+  },
+  "Blade": {
+    V: [
+      ["The Thing", "Suppression stops his dash aggression cold"],
+      ["Emma Frost", "CC punishes his commit-heavy melee pattern"],
+      ["Peni Parker", "Mines punish every dash into your space"],
+    ],
+    D: [
+      ["Hela", "Pokes him out before his dash ever reaches her"],
+      ["Storm", "Aerial kiting keeps him swinging at air"],
+      ["Hawkeye", "Bursts him down during his predictable approach"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze interrupts his glaive pressure and ult"],
+      ["Mantis", "Sleep ends his dash chain instantly"],
+      ["Invisible Woman", "Push keeps him off your supports permanently"],
+    ],
+  },
+  "Cyclops": {
+    // Day-one entry (launched June 12, S8.5) — based on his revealed kit, not
+    // accumulated match data. He's a mid-range angle-holder: dive him, shield him out.
+    V: [
+      ["Doctor Strange", "Shield blanks optic blasts and walks the team through his angle"],
+      ["Magneto", "Shields eat the beams and bubble answers the visor-off ult"],
+      ["Venom", "Dives the angle-holder — his glide buys one escape, not two"],
+    ],
+    D: [
+      ["Spider-Man", "Mid-range anchors hate dive — on him before the beam charges"],
+      ["Black Panther", "Dashes through his sightline and forces the panic glide"],
+      ["Hela", "Out-ranges his mid-range comfort zone at full distance"],
+    ],
+    S: [
+      ["Cloak & Dagger", "Blind erases a kit built entirely on aim and angles"],
+      ["Invisible Woman", "Invis and push deny the sightline control he needs"],
+      ["Loki", "Clones scatter his ricochet targeting and bait the ult"],
+    ],
+  },
+  "Daredevil": {
+    V: [
+      ["Emma Frost", "CC catches him the moment radar aggression starts"],
+      ["Peni Parker", "Mines own the close-range space he wants to live in"],
+      ["The Thing", "Suppression deletes his mobility-driven kit"],
+    ],
+    D: [
+      ["The Punisher", "Out-guns him at the mid-range he tries to control"],
+      ["Hela", "Pure range advantage he has no tool to close safely"],
+      ["Winter Soldier", "Hook punishes his every aggressive swing in"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze shuts down his momentum-based pressure"],
+      ["Mantis", "Sleep turns his dive into a free elimination"],
+      ["Invisible Woman", "Push denies him the backline access he needs"],
+    ],
+  },
+  "Deadpool": {
+    V: [
+      ["The Thing", "Suppression disrupts his dive before the bomb lands"],
+      ["Thor", "Out-brawls him and disrupts his engage with CC"],
+      ["Magneto", "Bubble saves whoever Tankpool is sitting on"],
+    ],
+    D: [
+      ["Hela", "Out-ranges him completely and bursts through the regen passive"],
+      ["Iron Man", "Pokes from the sky where his short range can't answer"],
+      ["Black Widow", "Chips him from a distance he simply can't close"],
+    ],
+    S: [
+      ["Mantis", "Sleep through the chaos, then focus him down"],
+      ["Luna Snow", "Freeze cancels his bomb engage entirely"],
+      ["Invisible Woman", "Push bounces him out before the death mark sticks"],
+    ],
+  },
+  "Elsa Bloodstone": {
+    V: [
+      ["Emma Frost", "CC catches her before instinct stacks snowball"],
+      ["Doctor Strange", "Shield blocks the shotgun burst at the range she needs"],
+      ["The Thing", "Suppression cancels Helix Advance mid-dash"],
+    ],
+    D: [
+      ["Hela", "Out-ranges the shotgun completely — Elsa can't farm stacks"],
+      ["Hawkeye", "Deletes her at zero instinct before she ever ramps"],
+      ["Storm", "Aerial kiting denies her the brawl range she lives in"],
+    ],
+    S: [
+      ["Mantis", "Sleep resets her dive — kill her early, keep her at zero stacks"],
+      ["Luna Snow", "Freeze stops the momentum engine cold"],
+      ["Invisible Woman", "Push denies the close-range window her kit needs"],
+    ],
+  },
+  "Hawkeye": {
+    V: [
+      ["Venom", "Dives the perch — Hawkeye melts in melee range"],
+      ["Doctor Strange", "Shield blanks his picks while the team closes in"],
+      ["Magneto", "Shields eat his arrows until he's in trouble"],
+    ],
+    D: [
+      ["Spider-Man", "On him in one second — snipers hate this trick"],
+      ["Black Panther", "Dashes through the sightline and deletes him"],
+      ["Psylocke", "Stealth flank ends him before he draws"],
+    ],
+    S: [
+      ["Loki", "Clones soak his arrows and waste his afterimage reads"],
+      ["Cloak & Dagger", "Blind at range ruins his entire value window"],
+      ["Invisible Woman", "Invisibility makes his aim duel unwinnable"],
+    ],
+  },
+  "Hela": {
+    V: [
+      ["Doctor Strange", "Shield wins the poke war she wants to dictate"],
+      ["Venom", "Dives her — she has one escape, then she's done"],
+      ["Magneto", "Shields blank her damage and bubble denies her burst"],
+    ],
+    D: [
+      ["Spider-Man", "Forces the close-range fight she's worst at"],
+      ["Psylocke", "Stealth dive deletes her before headshots happen"],
+      ["Star-Lord", "Mobility duels her with dodge-heavy aim she can't track"],
+    ],
+    S: [
+      ["Cloak & Dagger", "Blind erases the queen of headshots' aim"],
+      ["Loki", "Clones eat her shots and bait the crow escape"],
+      ["Invisible Woman", "Push and invis ruin her sightline control"],
+    ],
+  },
+  "Human Torch": {
+    V: [
+      ["Devil Dinosaur", "Impact Beam is a built-in anti-flier with a huge hitbox"],
+      ["Doctor Strange", "Flies up to him and wins the air duel"],
+      ["Magneto", "Bubble eats Supernova and shields the burn field"],
+    ],
+    D: [
+      ["The Punisher", "Hitscan turns fliers into skeet"],
+      ["Hela", "Picks him out of the sky from any distance"],
+      ["Hawkeye", "One charged arrow and the fire goes out"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze drops him out of the sky — fire vs ice writes itself"],
+      ["Mantis", "Sleep mid-flight ends his Supernova setup"],
+      ["Cloak & Dagger", "Blind ruins his fire field placement"],
+    ],
+  },
+  "Iron Fist": {
+    V: [
+      ["Peni Parker", "Mines punish his every dive into your backline"],
+      ["Emma Frost", "CC interrupts the punch chain before it kills"],
+      ["The Thing", "Suppression cancels his wall-run mobility"],
+    ],
+    D: [
+      ["Namor", "Squids melt him while he's locked in melee animations"],
+      ["Winter Soldier", "Hook yanks him off his kill target into your team"],
+      ["The Punisher", "Shotgun out-damages his punches point blank"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze breaks the punch lock and strands him"],
+      ["Mantis", "Sleep on dive equals a free pick every time"],
+      ["Invisible Woman", "Push denies the chase-down his kit depends on"],
+    ],
+  },
+  "Iron Man": {
+    V: [
+      ["Devil Dinosaur", "Impact Beam swats him out of the sky"],
+      ["Doctor Strange", "Flies up and shield-bashes the armor off him"],
+      ["Magneto", "Bubble literally eats his ult — the famous tech"],
+    ],
+    D: [
+      ["The Punisher", "The original Iron Man delete button — pure hitscan"],
+      ["Hela", "Headshots him out of hover from across the map"],
+      ["Hawkeye", "One fully drawn arrow ends the flight show"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze interrupts his ult call-out instantly"],
+      ["Cloak & Dagger", "Blind drops his aim during his strongest windows"],
+      ["Mantis", "Sleep cancels the Pulse Cannon before it fires"],
+    ],
+  },
+  "Magik": {
+    V: [
+      ["Emma Frost", "CC catches her between portal hops"],
+      ["The Thing", "Suppression shuts the portal aggression down"],
+      ["Peni Parker", "Mines punish her stepping-disc entries"],
+    ],
+    D: [
+      ["Hela", "Pokes her out before the portal range closes"],
+      ["The Punisher", "Out-damages her in the mid-range she must cross"],
+      ["Storm", "Aerial kiting keeps Darkchild swinging at nothing"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze stops the slash chain and the demon form"],
+      ["Mantis", "Sleep interrupts her engage and ult momentum"],
+      ["Invisible Woman", "Push keeps her off the squishies she hunts"],
+    ],
+  },
+  "Mister Fantastic": {
+    V: [
+      ["Doctor Strange", "Shield blanks his stretch poke and wins the front line"],
+      ["Magneto", "Shields negate his damage-absorb brawling pattern"],
+      ["Groot", "Walls isolate him from the team feeding his shield"],
+    ],
+    D: [
+      ["Hela", "Out-ranges his stretch and bursts the inflated form"],
+      ["The Punisher", "Sustained DPS pops his elastic health bar"],
+      ["Storm", "Kites above his reach and chips him down"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze stops his grab-and-slam loops"],
+      ["Mantis", "Sleep cancels the inflated rampage"],
+      ["Invisible Woman", "Push denies his grab on your backline"],
+    ],
+  },
+  "Moon Knight": {
+    V: [
+      ["Venom", "Dives him — he folds fast under direct pressure"],
+      ["Doctor Strange", "Shield blocks ankh bounce damage at the choke"],
+      ["Magneto", "Bubble saves whoever's standing in the ankh"],
+    ],
+    D: [
+      ["Spider-Man", "On top of him before a single ankh lands"],
+      ["Black Panther", "Dash pressure forces him off his spam angle"],
+      ["Psylocke", "Stealth flank deletes him mid-ankh setup"],
+    ],
+    S: [
+      ["Cloak & Dagger", "Phase walks the whole team out of Hand of Khonshu"],
+      ["Jeff the Land Shark", "Bubble saves an ally standing in the ult"],
+      ["Loki", "Clones scatter his ankh value and bait the ult"],
+    ],
+  },
+  "Namor": {
+    V: [
+      ["Doctor Strange", "Shield blocks both Namor and his squid damage"],
+      ["Magneto", "Shields trivialize his poke while the team pushes"],
+      ["Emma Frost", "Diamond form walks through his zone and CCs him"],
+    ],
+    D: [
+      ["Hela", "Out-ranges him and the turrets — kills squids for free"],
+      ["The Punisher", "Deletes squids instantly and out-pokes him"],
+      ["Hawkeye", "Picks him from beyond squid leash range"],
+    ],
+    S: [
+      ["Loki", "Clones soak squid aggro and waste his bubble"],
+      ["Invisible Woman", "Invis breaks squid targeting on your flankers"],
+      ["Cloak & Dagger", "Blind ruins his Horn of Proteus follow-up"],
+    ],
+  },
+  "Phoenix": {
+    V: [
+      ["Doctor Strange", "Shield denies the spark detonation chains"],
+      ["Magneto", "Bubble eats her burst combo on your carry"],
+      ["Emma Frost", "CC punishes her predictable burst windows"],
+    ],
+    D: [
+      ["Hela", "Wins the long-range duel and bursts first"],
+      ["Hawkeye", "Deletes her before the spark spreads"],
+      ["The Punisher", "Hitscan pressure she can't out-trade up close"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze interrupts her dash and ult cast"],
+      ["Mantis", "Sleep before the Dark Phoenix dive lands"],
+      ["Invisible Woman", "Push breaks her burst range on the backline"],
+    ],
+  },
+  "Psylocke": {
+    V: [
+      ["Peni Parker", "Mines punish her stealth approach paths"],
+      ["Emma Frost", "Telepath vs telepath — Emma's CC wins"],
+      ["The Thing", "Suppression cancels her dash mid-combo"],
+    ],
+    D: [
+      ["Namor", "Squids track her through stealth and dashes"],
+      ["The Punisher", "Shotgun deletes her the moment she appears"],
+      ["Winter Soldier", "Hook interrupts the blade-dash combo"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze during her ult dance is a death sentence"],
+      ["Mantis", "Sleep cancels the dive before the burst lands"],
+      ["Invisible Woman", "Push denies her assassination window"],
+    ],
+  },
+  "Scarlet Witch": {
+    V: [
+      ["Emma Frost", "Diamond form tanks the lock-on and CCs her float"],
+      ["Doctor Strange", "Shield blocks her ult and her chaos field"],
+      ["Magneto", "Bubble counters her burst — and her ult, famously"],
+    ],
+    D: [
+      ["The Punisher", "Hitscan deletes her slow, floaty frame"],
+      ["Hela", "Headshots her hover from well outside lock-on range"],
+      ["Hawkeye", "Bursts her before the chaos field ramps"],
+    ],
+    S: [
+      ["Mantis", "Sleep mid-'NO MORE' is the most satisfying counter in the game"],
+      ["Luna Snow", "Freeze cancels the ult and the escape"],
+      ["Cloak & Dagger", "Blind breaks her lock-on entirely"],
+    ],
+  },
+  "Spider-Man": {
+    V: [
+      ["Peni Parker", "The Spidey jailer — mines and webs end the dive game"],
+      ["Emma Frost", "One CC and the combo window collapses"],
+      ["The Thing", "Suppression cancels web-swing escapes"],
+    ],
+    D: [
+      ["Namor", "Squids auto-track him — the universal Spidey answer"],
+      ["Scarlet Witch", "Lock-on beam doesn't care about his acrobatics"],
+      ["The Punisher", "Shotgun meets the uppercut combo head-on and wins"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze strands him mid-combo with no web out"],
+      ["Mantis", "Sleep on dive entry, free kill on the floor"],
+      ["Invisible Woman", "Push interrupts the kill combo and peels"],
+    ],
+  },
+  "Squirrel Girl": {
+    V: [
+      ["Doctor Strange", "Shield eats every bouncing acorn"],
+      ["Magneto", "Shields blank her spam while the team advances"],
+      ["Venom", "Dives her — she has no real answer up close"],
+    ],
+    D: [
+      ["Hela", "Direct hitscan beats lobbed projectiles every time"],
+      ["The Punisher", "Out-damages her spam with straight-line DPS"],
+      ["Spider-Man", "On her instantly — squirrels can't stop the dive"],
+    ],
+    S: [
+      ["Cloak & Dagger", "Phase walks through her ult squirrel swarm"],
+      ["Loki", "Clones soak acorns and the ult targeting"],
+      ["Invisible Woman", "Push keeps her bounce spam off the backline"],
+    ],
+  },
+  "Star-Lord": {
+    V: [
+      ["Emma Frost", "CC catches him out of his dodge rolls"],
+      ["Doctor Strange", "Shield blanks his element guns at every range"],
+      ["Peni Parker", "Mines punish his low-flight weaving"],
+    ],
+    D: [
+      ["Hela", "Out-duels him at range with bigger burst"],
+      ["The Punisher", "Wins the hitscan-vs-hitscan war on raw DPS"],
+      ["Winter Soldier", "Hook ends a dodge-roll mid-animation"],
+    ],
+    S: [
+      ["Mantis", "Sleep cancels Galactic Legend — aim means nothing asleep"],
+      ["Luna Snow", "Freeze during his ult turns it off completely"],
+      ["Cloak & Dagger", "Blind breaks the auto-aim ult's value"],
+    ],
+  },
+  "Storm": {
+    V: [
+      ["Devil Dinosaur", "Impact Beam is purpose-built to swat her down"],
+      ["Magneto", "Bubble eats Omega Hurricane's burst on your carry"],
+      ["Doctor Strange", "Flies up and contests her air space directly"],
+    ],
+    D: [
+      ["The Punisher", "Hitscan deletes the slow-moving weather goddess"],
+      ["Hela", "Headshots her hover from beyond her aura range"],
+      ["Hawkeye", "One arrow ends the forecast"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze cancels Omega Hurricane mid-spin"],
+      ["Mantis", "Sleep her before the ult ramps up"],
+      ["Cloak & Dagger", "Phase carries the team through her hurricane"],
+    ],
+  },
+  "The Punisher": {
+    V: [
+      ["Venom", "Dives the turret — Frank can't reposition out"],
+      ["Doctor Strange", "Shield blanks the turret's entire value window"],
+      ["Magneto", "Shields walk the team through his sightline"],
+    ],
+    D: [
+      ["Spider-Man", "Punishes the immobile turret form instantly"],
+      ["Black Panther", "Dashes through the smoke and deletes him"],
+      ["Iron Fist", "Closes the gap and wins the melee he can't refuse"],
+    ],
+    S: [
+      ["Loki", "Clones soak his ammo and bait the turret commit"],
+      ["Invisible Woman", "Invis walks your flankers right past his sightline"],
+      ["Cloak & Dagger", "Blind shuts the turret's eyes mid-ult"],
+    ],
+  },
+  "Winter Soldier": {
+    V: [
+      ["Doctor Strange", "Shield eats the hook — his whole game plan dies"],
+      ["Magneto", "Bubble saves every hooked teammate"],
+      ["Emma Frost", "CC punishes his hook-and-leap commitment"],
+    ],
+    D: [
+      ["Hela", "Out-ranges the hook and bursts him first"],
+      ["Hawkeye", "Picks him from beyond hook range all game"],
+      ["Storm", "Aerial kiting makes his hook fish for air"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze breaks his infinite ult-reset chains"],
+      ["Loki", "Clones eat hooks like it's their job"],
+      ["Invisible Woman", "Push denies the hook follow-up combo"],
+    ],
+  },
+  "Wolverine": {
+    V: [
+      ["Captain America", "The only tank that genuinely wins this matchup"],
+      ["Emma Frost", "CC stops his lunge before claws meet tank"],
+      ["The Thing", "Suppression cancels the leap that starts his combo"],
+    ],
+    D: [
+      ["Hela", "Melee-only means he eats poke the whole approach"],
+      ["Storm", "Kites above his lunge range forever"],
+      ["Iron Man", "Logan can't claw what he can't reach"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze stops the rage-fueled blender instantly"],
+      ["Mantis", "Sleep him mid-lunge, kill him on the ground"],
+      ["Invisible Woman", "Push throws his kidnap combo off course"],
+    ],
+  },
+  "Adam Warlock": {
+    V: [
+      ["Venom", "Dives the most immobile support in the game"],
+      ["Captain America", "Leaps the backline and runs him down"],
+      ["Hulk", "Jumps on him and there's nowhere to go"],
+    ],
+    D: [
+      ["Spider-Man", "Zero mobility means a free meal every dive"],
+      ["Black Panther", "Dashes onto him faster than soul bond saves"],
+      ["Psylocke", "Stealth burst beats his cocoon timing"],
+    ],
+    S: [
+      ["Mantis", "Sleep him before the team revive goes out"],
+      ["Luna Snow", "Freeze denies his ult positioning"],
+      ["Cloak & Dagger", "Blind breaks his charged-shot pressure"],
+    ],
+  },
+  "Cloak & Dagger": {
+    V: [
+      ["Venom", "Persistent dive pressure outlasts the phase escape"],
+      ["Captain America", "Chases through the dash and keeps the pressure on"],
+      ["Hulk", "Forces the phase early, then punishes the cooldown"],
+    ],
+    D: [
+      ["Psylocke", "Burst beats the heal — kills before the swap to Cloak"],
+      ["Spider-Man", "Repeat dives drain every escape they have"],
+      ["Iron Fist", "Tracks them through the dash and finishes the job"],
+    ],
+    S: [
+      ["Mantis", "Sleep interrupts the Eternal Bond ult run"],
+      ["Luna Snow", "Out-sustains their healing in the support war"],
+      ["Loki", "Steals their ult and uses it better"],
+    ],
+  },
+  "Gambit": {
+    V: [
+      ["Venom", "Dives him before the charged cards stack up"],
+      ["Captain America", "Backline pressure he can't kite forever"],
+      ["Hulk", "One leap and the card show is over"],
+    ],
+    D: [
+      ["Spider-Man", "On him before a single card charges"],
+      ["Black Panther", "Dash pressure ruins his charge tempo"],
+      ["Psylocke", "Stealth burst beats his mid-range setup"],
+    ],
+    S: [
+      ["Mantis", "Sleep cancels his charged plays entirely"],
+      ["Luna Snow", "Freeze stops his kiting and his ult"],
+      ["Loki", "Clones soak the cards and waste his charge"],
+    ],
+  },
+  "Invisible Woman": {
+    V: [
+      ["Venom", "AoE swing damage finds her even while invisible"],
+      ["Hulk", "Clap and leap splash break stealth instantly"],
+      ["Captain America", "Persistent chase outlasts her fade timer"],
+    ],
+    D: [
+      ["Iron Fist", "Auto-tracking punches find the invisible woman"],
+      ["Psylocke", "Stealth vs stealth — Psylocke's burst wins"],
+      ["Spider-Man", "Spam dives force the fade and punish the reappear"],
+    ],
+    S: [
+      ["Mantis", "Sleep her the moment she reappears"],
+      ["Luna Snow", "Out-heals her in the support battle"],
+      ["Loki", "Out-values her with clones and stolen ults"],
+    ],
+  },
+  "Jeff the Land Shark": {
+    V: [
+      ["Hulk", "Splash damage finds the tiny shark underground"],
+      ["Venom", "AoE swings clip him even while submerged"],
+      ["Captain America", "Runs him down through the dive-and-surface loop"],
+    ],
+    D: [
+      ["Storm", "AoE aura clips his tiny hitbox constantly"],
+      ["Squirrel Girl", "Bouncing splash finds the shark everywhere"],
+      ["Moon Knight", "Ankh bounce damage punishes his small frame"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze stops the ult swallow before it starts"],
+      ["Invisible Woman", "Push denies his ult positioning off the ledge"],
+      ["Mantis", "Sleep him as he surfaces for the kill"],
+    ],
+  },
+  "Jubilee": {
+    // Season 9 launch Strategist. Counters from Counterwatch duel data (Black Panther +12.9,
+    // Spider-Man, Squirrel Girl) plus kit analysis — 275 HP with no defensive cooldown once
+    // Sparking Sprint is spent, so dive and burst punish her hard.
+    V: [
+      ["Venom", "Dives her 275 HP the moment Sparking Sprint is on cooldown"],
+      ["Captain America", "Runs her down and forces the sprint defensively, gutting her healing"],
+      ["Hulk", "Leaps the backline; she has no answer once he lands on her"],
+    ],
+    D: [
+      ["Black Panther", "Hardest counter by the data — his dashes dodge her plasmoids, then delete her"],
+      ["Spider-Man", "Reaches her from awkward vertical angles before Blooming Ball charges"],
+      ["Psylocke", "Stealth approach punishes her before she can react or sprint away"],
+    ],
+    S: [
+      ["Jeff the Land Shark", "Bubble displaces her out of position and ruins her Firework Finale"],
+      ["Luna Snow", "Freeze interrupts her ult and out-sustains her in the support duel"],
+      ["Mantis", "Sleep cancels Firework Finale and sets up the focus kill"],
+    ],
+  },
+  "Loki": {
+    V: [
+      ["Venom", "Dive pressure forces clone swaps until he's out"],
+      ["Hulk", "AoE clap clears clones and the real one"],
+      ["Captain America", "Persistent chase reveals the real Loki fast"],
+    ],
+    D: [
+      ["Storm", "Constant AoE shreds clones and exposes him"],
+      ["Scarlet Witch", "Chaos field melts every clone at once"],
+      ["Moon Knight", "Ankh chains hit all Lokis simultaneously"],
+    ],
+    S: [
+      ["Mantis", "Sleep the real one and the show's over"],
+      ["Luna Snow", "Her ult is the one he most wants to steal — make him whiff"],
+      ["Cloak & Dagger", "Blind disrupts him with no clone counterplay"],
+    ],
+  },
+  "Luna Snow": {
+    V: [
+      ["Venom", "The classic Luna answer — dive her until she cracks"],
+      ["Captain America", "Constant backline pressure she can't skate from"],
+      ["Hulk", "Leaps on her and forces the freeze early"],
+    ],
+    D: [
+      ["Spider-Man", "Dives her repeatedly until the freeze is baited"],
+      ["Black Panther", "Dash burst beats her self-sustain"],
+      ["Psylocke", "Stealth burst before the ice wall of healing starts"],
+    ],
+    S: [
+      ["Loki", "Steals her ult — the most famous tech in the game"],
+      ["Mantis", "Sleep during Luna's ult cancels the entire concert"],
+      ["Cloak & Dagger", "Blind cuts her healing output mid-fight"],
+    ],
+  },
+  "Mantis": {
+    V: [
+      ["Venom", "Dives her and eats the sleep so allies don't"],
+      ["Captain America", "Pressure she can't sleep off cooldown forever"],
+      ["Hulk", "Tanks the sleep, wakes up, finishes the job"],
+    ],
+    D: [
+      ["Spider-Man", "Webs in faster than her sleep dart tracks"],
+      ["Psylocke", "Stealth entry dodges the sleep entirely"],
+      ["Black Panther", "Dash resets out-tempo her single CC"],
+    ],
+    S: [
+      ["Loki", "Clones eat the sleep and bait her cooldowns"],
+      ["Luna Snow", "Wins the sustain war between CC supports"],
+      ["Invisible Woman", "Push peels divers better than Mantis can"],
+    ],
+  },
+  "Rocket Raccoon": {
+    V: [
+      ["Venom", "Chases the wall-crawl and breaks the revive beacon"],
+      ["Captain America", "Hunts him through every dash and scurry"],
+      ["Hulk", "Splash damage clips the tiny trash panda"],
+    ],
+    D: [
+      ["Psylocke", "Finds him, bursts him, and breaks the beacon"],
+      ["Spider-Man", "Tracks the dash and finishes the small hitbox"],
+      ["Storm", "AoE catches him along walls and ceilings"],
+    ],
+    S: [
+      ["Mantis", "Sleep ends the scamper instantly"],
+      ["Luna Snow", "Out-heals his beam in the support duel"],
+      ["Loki", "Out-values him and clones soak his damage"],
+    ],
+  },
+  "Ultron": {
+    V: [
+      ["Devil Dinosaur", "Impact Beam swats the flying healer down"],
+      ["Doctor Strange", "Flies up and duels him in his own airspace"],
+      ["Magneto", "A metal robot vs the master of magnetism — and shields"],
+    ],
+    D: [
+      ["The Punisher", "Hitscan turns the drone swarm into scrap"],
+      ["Hela", "Picks him out of the sky from spawn"],
+      ["Hawkeye", "One arrow ends the age of Ultron"],
+    ],
+    S: [
+      ["Cloak & Dagger", "Blind breaks his drone-beam value"],
+      ["Loki", "Clones scatter his drone targeting"],
+      ["Mantis", "Sleep drops him out of the air mid-ult"],
+    ],
+  },
+  "White Fox": {
+    V: [
+      ["Venom", "Dives her before the charm CC turns the fight"],
+      ["Captain America", "Pressure through the charm with shield up"],
+      ["Hulk", "Tanks the charm and deletes her anyway"],
+    ],
+    D: [
+      ["Psylocke", "Stealth burst beats her charm reaction time"],
+      ["Spider-Man", "Combo kills her before the lifesteal ult saves her"],
+      ["Hela", "Bursts her at a range where charm never lands"],
+    ],
+    S: [
+      ["Mantis", "Sleep beats charm in the CC support duel"],
+      ["Luna Snow", "Her own Kumiho team-up partner out-sustains her 1v1"],
+      ["Loki", "Clones bait the charm and steal her lifesteal ult"],
+    ],
+  },
+};
+
+/* ══════════ APP ══════════ */
+const ROLE = {
+  V: { label: "Vanguard", alt: "Tank", color: "#FFB454", dim: "rgba(255,180,84,0.14)" },
+  D: { label: "Duelist", alt: "DPS", color: "#FF5470", dim: "rgba(255,84,112,0.14)" },
+  S: { label: "Strategist", alt: "Healer", color: "#4ADEB8", dim: "rgba(74,222,184,0.14)" },
+};
+
+const state = { tab: "solo", roleFilter: "ALL", selected: null, page: 0, query: "", team: [], teamView: "pick", teamPage: 0, teamRoleFilter: "ALL", teamQuery: "", banComp: [], banRoleFilter: "ALL", banQuery: "" };
+
+const heroRole = (name) => { const h = HEROES.find((x) => x.name === name); return h ? h.role : "D"; };
+
+// ─── Meta tier (Counterwatch shrunk win rate, all ranks, S8.5 — updated Jun 19 2026) ───
+// Used ONLY as a tie-breaker between heroes that already counter the enemy, and to
+// flag picks that are weak in the current meta. Matchup data still decides who counters whom.
+const TIER = {
+  // Season 9 — Counterwatch shrunk win rate, all ranks, updated Jul 18 2026 (post-launch + Jul 11 hotfix)
+  "Peni Parker":"S","Magik":"S","Rocket Raccoon":"S","Mantis":"S","Ultron":"S","Storm":"S",
+  "Daredevil":"A","Devil Dinosaur":"A","Blade":"A","Black Panther":"A","Mister Fantastic":"A","Captain America":"A","Hulk":"A","Iron Fist":"A",
+  "Spider-Man":"B","Hela":"B","White Fox":"B","Angela":"B","Rogue":"B","Cyclops":"B","Black Cat":"B","Jubilee":"B","Iron Man":"B","Thor":"B","Star-Lord":"B","Psylocke":"B",
+  "Wolverine":"C","The Thing":"C","Venom":"C","Doctor Strange":"C","Luna Snow":"C","Winter Soldier":"C","Emma Frost":"C","Deadpool":"C","Groot":"C","Invisible Woman":"C","Cloak & Dagger":"C","The Punisher":"C","Scarlet Witch":"C",
+  "Adam Warlock":"D","Namor":"D","Magneto":"D","Loki":"D","Gambit":"D","Elsa Bloodstone":"D","Human Torch":"D","Squirrel Girl":"D","Moon Knight":"D","Jeff the Land Shark":"D",
+  "Phoenix":"F","Hawkeye":"F","Black Widow":"F",
+};
+// "Hulk" maps to Counterwatch's "Bruce Banner" A-tier entry. Deadpool listed once (C) as the app
+// treats him as one flex hero, though Counterwatch now splits his three role-kits separately.
+const TIER_RANK = { S:0, A:1, B:2, C:3, D:4, F:5 };
+const TIER_COLOR = { S:"#FF5470", A:"#FFB454", B:"#4ADEB8", C:"#7d86a3", D:"#7d86a3", F:"#5d6685" };
+const tierOf = (name) => TIER[name] || "C";
+const isWeakMeta = (name) => TIER_RANK[tierOf(name)] >= TIER_RANK["D"]; // D or F
+
+// ─── Ban priority (S8.5 consensus across allthings.how, Boostmatch, Beebom/RivalsTracker
+// ban rates, updated mid-Jun 2026). This is "how oppressive / frustrating to face" — a
+// separate axis from raw tier. High = the hero swings games or is miserable to play against.
+// Scale 0–10. Used alongside how hard a hero counters YOUR planned comp.
+const BAN_PRIORITY = {
+  // Season 9 ban-rate consensus (Beebom/RivalsTracker Jul 17, plus Insider Gaming, Mobalytics).
+  // Ban rate = how oppressive/frustrating to face, NOT raw tier — Gambit stays a near-permanent
+  // ban on utility despite a low win rate, while Peni tops both charts.
+  "Black Panther": 9, "Peni Parker": 9, "Gambit": 9, "Magik": 8, "Invisible Woman": 8,
+  "Storm": 7, "Daredevil": 7, "Rocket Raccoon": 7, "Mantis": 7, "Iron Fist": 6,
+  "Ultron": 6, "Devil Dinosaur": 6, "Blade": 6, "Spider-Man": 6, "Psylocke": 5,
+  "Hela": 5, "Mister Fantastic": 5, "Wolverine": 4, "Cyclops": 4, "Captain America": 4,
+  "Scarlet Witch": 3, "Venom": 3, "Black Cat": 3, "Jubilee": 3,
+};
+const banPriorityOf = (name) => BAN_PRIORITY[name] || 2;
+
+// Reverse the counter data: for a planned hero, who shows up as a counter TO them?
+// Returns a map of counter-name -> how hard (rank1=3,rank2=2,rank3=1), summed if a hero
+// counters several of your picks.
+function threatsToComp(comp) {
+  const threat = {};
+  for (const mine of comp) {
+    const c = COUNTERS[mine];
+    if (!c) continue;
+    for (const r of ["V", "D", "S"]) {
+      c[r].forEach(([name], i) => {
+        if (!threat[name]) threat[name] = { weight: 0, into: [] };
+        threat[name].weight += 3 - i;
+        if (!threat[name].into.includes(mine)) threat[name].into.push(mine);
+      });
+    }
+  }
+  return threat;
+}
+
+const initials = (name) => name
+  .replace("The ", "")
+  .split(/[\s&-]+/)
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((w) => w[0])
+  .join("")
+  .toUpperCase();
+
+// Hero portrait support: drop images into an /icons folder in the repo,
+// named after each hero, lowercase, spaces → hyphens, "&" → "and".
+// e.g. icons/spider-man.png, icons/cloak-and-dagger.png, icons/jeff-the-land-shark.png
+// PNG, JPG, or WEBP all work — the app tries .png first, then .webp, then .jpg.
+// Missing images automatically fall back to the initials badge.
+const slug = (name) => name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+const avaHTML = (name, color) => {
+  const s = slug(name);
+  return `<div class="ava" style="background:${color}">${initials(name)}<img src="icons/${s}.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src='icons/${s}.webp'}else if(this.src.endsWith('.webp')){this.src='icons/${s}.jpg'}else{this.remove()}"></div>`;
+};
+
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+const view = document.getElementById("view");
+const tabSolo = document.getElementById("tabSolo");
+const tabBans = document.getElementById("tabBans");
+const tabTeam = document.getElementById("tabTeam");
+
+tabSolo.addEventListener("click", () => { state.tab = "solo"; state.lastHeard = ""; render(); });
+tabBans.addEventListener("click", () => { state.tab = "bans"; state.lastHeard = ""; render(); });
+tabTeam.addEventListener("click", () => { state.tab = "team"; state.lastHeard = ""; render(); });
+
+function pick(name) { state.selected = name; state.page = 0; state.tuIdx = 0; render(); window.scrollTo({ top: 0 }); }
+
+function render() {
+  tabSolo.classList.toggle("on", state.tab === "solo");
+  tabBans.classList.toggle("on", state.tab === "bans");
+  tabTeam.classList.toggle("on", state.tab === "team");
+
+  if (state.tab === "bans") { renderBans(); return; }
+  if (state.tab === "team") { renderTeam(); return; }
+
+  if (state.selected) { renderDetail(); } else { renderGrid(); }
+}
+
+function renderGrid() {
+  const q = state.query.trim().toLowerCase();
+  const heroes = HEROES.filter((h) =>
+    (state.roleFilter === "ALL" || h.role === state.roleFilter) &&
+    (!q || h.name.toLowerCase().includes(q))
+  );
+
+  const pills = ["ALL", "V", "D", "S"].map((r) => {
+    const on = state.roleFilter === r;
+    const styleOn = on ? `style="background:${r === "ALL" ? "#e9ecf5" : ROLE[r].color}"` : "";
+    const label = r === "ALL" ? "All" : `${ROLE[r].label}<small>${ROLE[r].alt}</small>`;
+    return `<button class="pill ${on ? "on" : ""}" ${styleOn} data-role="${r}">${label}</button>`;
+  }).join("");
+
+  const chips = heroes.map((h) => `
+    <button class="chip" style="border-left-color:${ROLE[h.role].color}" data-hero="${esc(h.name)}">
+      ${avaHTML(h.name, ROLE[h.role].color)}
+      <div>
+        <div class="chipName">${esc(h.name)}${h.flex ? '<span class="flexBadge">FLEX</span>' : ""}</div>
+        <div class="chipRole" style="color:${ROLE[h.role].color}">${ROLE[h.role].label}</div>
+      </div>
+    </button>`).join("");
+
+  view.innerHTML = `
+    <div class="toolbar">
+      ${pills}
+      <input class="search" id="search" placeholder="Search hero…" value="${esc(state.query)}">
+    </div>
+    <div class="grid">
+      ${chips || `<div class="empty" style="grid-column:1/-1"><h3>No heroes match</h3><p>Try a shorter search or switch the role filter back to All.</p></div>`}
+    </div>`;
+
+  view.querySelectorAll(".pill").forEach((b) =>
+    b.addEventListener("click", () => { state.roleFilter = b.dataset.role; render(); }));
+  view.querySelectorAll(".chip").forEach((b) =>
+    b.addEventListener("click", () => pick(b.dataset.hero)));
+  const search = view.querySelector("#search");
+  search.addEventListener("input", (e) => {
+    state.query = e.target.value;
+    const pos = e.target.selectionStart;
+    render();
+    const s2 = view.querySelector("#search");
+    s2.focus(); s2.setSelectionRange(pos, pos);
+  });
+}
+
+// Balanced blend: each counter gets a matchup score (rank 1 = 3, rank 2 = 2, rank 3 = 1)
+// and a meta score from its current tier (S = 2.5 → F = 0). Both are weighted so a hero
+// must be a strong matchup AND in good standing to lead — but a top paper-counter still
+// stays in the running rather than vanishing. Matchup is weighted a touch higher so a
+// hard counter is never buried by a hero that doesn't actually beat the target.
+const TIER_SCORE = { S: 2.5, A: 2.0, B: 1.5, C: 1.0, D: 0.5, F: 0 };
+const MATCHUP_W = 1.15;
+const META_W = 1.0;
+
+function tierAdjust(list) {
+  return list
+    .map(([name, why], i) => {
+      const matchup = (3 - i) * MATCHUP_W;          // 3,2,1 by original paper rank
+      const meta = TIER_SCORE[tierOf(name)] * META_W;
+      return { name, why, score: matchup + meta, base: i };
+    })
+    .sort((a, b) => b.score - a.score || a.base - b.base)
+    .map((x) => [x.name, x.why]);
+}
+
+const tierBadge = (name) => {
+  const t = tierOf(name);
+  const weak = isWeakMeta(name);
+  return `<span class="tierBadge" style="color:${TIER_COLOR[t]};border-color:${TIER_COLOR[t]}">${t}</span>` +
+    (weak ? `<span class="weakBadge" title="Low win rate in the current patch">weak pick</span>` : "");
+};
+
+function counterCardsHTML(name, data, page, tuEntry) {
+  const boosted = new Set(tuEntry ? tuEntry.boost : []);
+  // Apply Team-Up counter swaps: some Team-Ups genuinely change who the right answer is
+  let d = data;
+  const swappedIn = new Set();
+  if (tuEntry && tuEntry.swaps) {
+    d = { V: [...data.V], D: [...data.D], S: [...data.S] };
+    for (const s of tuEntry.swaps) {
+      const i = d[s.r].findIndex(([n]) => n === s.out);
+      if (i >= 0) { d[s.r][i] = s.in; swappedIn.add(s.in[0]); }
+    }
+  }
+  return ["V", "D", "S"].map((r) => {
+    const entry = d[r][page];
+    if (!entry) return `
+      <div class="card dead" style="border-top-color:${ROLE[r].color}">
+        <div class="cardRole" style="color:${ROLE[r].color}">${ROLE[r].label}</div>
+        <div class="why">No more ranked counters in this role.</div>
+      </div>`;
+    const [cname, why] = entry;
+    return `
+      <button class="card" data-hero="${esc(cname)}" title="See counters for ${esc(cname)}"
+        style="border-top-color:${ROLE[r].color};background:linear-gradient(180deg, ${ROLE[r].dim}, #11162b 55%)">
+        <div class="cardRole" style="color:${ROLE[r].color}">${ROLE[r].label} pick</div>
+        <div class="cardHero">
+          ${avaHTML(cname, ROLE[r].color)}
+          <div class="cardName">${esc(cname)}</div>
+          ${tierBadge(cname)}
+        </div>
+        <div class="why">${esc(why)}</div>
+        ${swappedIn.has(cname) ? '<span class="boostChip" style="background:rgba(255,180,84,.14);color:#FFB454">⇄ Team-Up pick</span>' : boosted.has(cname) ? '<span class="boostChip">↑ stronger vs this Team-Up</span>' : ""}
+      </button>`;
+  }).join("");
+}
+
+function renderDetail() {
+  const name = state.selected;
+  const role = heroRole(name);
+  const raw = COUNTERS[name];
+  const data = { V: tierAdjust(raw.V), D: tierAdjust(raw.D), S: tierAdjust(raw.S) };
+  const maxPage = Math.max(data.V.length, data.D.length, data.S.length) - 1;
+  state.page = Math.min(state.page, maxPage);
+
+  const tus = TEAMUPS[name] || null;
+  // Every hero has a Team-Up equipped in Season 9 — no baseline slide. Slide 0 = first option.
+  const slideCount = tus ? tus.length : 1;
+  state.tuIdx = Math.min(state.tuIdx || 0, slideCount - 1);
+  const tuEntry = tus ? tus[state.tuIdx] : null;
+
+  const tuSlides = tus
+    ? tus.map((t) => `
+    <div class="tuSlide">
+      <div class="tuName">${esc(t.name)}</div>
+      <div class="tuPartner">Enhanced with: ${esc(t.partner)}</div>
+      <div class="tuEffect">${esc(t.effect)}</div>
+      <div class="tuNote">${esc(t.note)}</div>
+    </div>`)
+    : [`
+    <div class="tuSlide" style="border-top-color:#5d6685">
+      <div class="tuName" style="color:#8b93ad">Team-Up intel pending</div>
+      <div class="tuPartner">${esc(name)}'s Season 9 Team-Up options haven't been verified yet</div>
+      <div class="tuEffect">Counters below are baseline matchups. Verified Team-Up breakdowns are being added hero by hero — effects for most of the 54 overhauled Team-Ups aren't published anywhere reliable yet.</div>
+    </div>`];
+
+  view.innerHTML = `
+    <button class="back" id="back">← All heroes</button>
+    <div class="heroHead" style="border-left:4px solid ${ROLE[role].color}">
+      ${avaHTML(name, ROLE[role].color)}
+      <div>
+        <div class="heroName">${esc(name)}</div>
+        <div class="chipRole" style="color:${ROLE[role].color}">${ROLE[role].label} · ${ROLE[role].alt}</div>
+      </div>
+    </div>
+    <div class="tuWrap">
+      <button class="tuArrow" id="tuPrev" ${state.tuIdx === 0 ? "disabled" : ""}>‹</button>
+      <div class="tuViewport"><div class="tuTrack" id="tuTrack" style="transform:translateX(-${state.tuIdx * 100}%)">${tuSlides.join("")}</div></div>
+      <button class="tuArrow" id="tuNext" ${state.tuIdx >= slideCount - 1 ? "disabled" : ""}>›</button>
+    </div>
+    ${slideCount > 1 ? `<div class="tuDots" id="tuDots">${tuSlides.map((_, i) => `<button class="tuDot ${i === state.tuIdx ? "on" : ""}" data-i="${i}"></button>`).join("")}</div>` : '<div style="margin-bottom:14px"></div>'}
+    <div class="pager">
+      <button class="navBtn" id="prev" ${state.page === 0 ? "disabled" : ""}>← Prev</button>
+      <div class="pagerLabel">Counter rank <b>#${state.page + 1}</b> of ${maxPage + 1}</div>
+      <button class="navBtn" id="next" ${state.page >= maxPage ? "disabled" : ""}>Next →</button>
+    </div>
+    <div class="cards" id="cards">${counterCardsHTML(name, data, state.page, tuEntry)}</div>
+    <div class="hint">Tip: tap any counter card to jump to that hero's own counters. Order blends matchup strength with current win-rate tier — a pick has to counter the target and be performing well to lead. The letter badge is the hero's meta tier (S best, F worst); "weak pick" flags a counter that works on paper but is underperforming this patch — fine in a pinch, but there's usually a stronger option.${tus ? " Team-Up notes are kit-based reads, not tracker data — no site measures matchups per Team-Up yet." : ""}</div>`;
+
+  const wireCards = () => view.querySelectorAll(".card[data-hero]").forEach((b) =>
+    b.addEventListener("click", () => pick(b.dataset.hero)));
+
+  view.querySelector("#back").addEventListener("click", () => { state.selected = null; state.tuIdx = 0; render(); });
+  view.querySelector("#prev").addEventListener("click", () => { if (state.page > 0) { state.page--; render(); } });
+  view.querySelector("#next").addEventListener("click", () => { if (state.page < maxPage) { state.page++; render(); } });
+  wireCards();
+
+  if (tus && slideCount > 1) {
+    // Slide in place: animate the track transform, then refresh only the cards so the
+    // CSS transition isn't destroyed by a full re-render.
+    const goTo = (idx) => {
+      state.tuIdx = Math.max(0, Math.min(idx, slideCount - 1));
+      view.querySelector("#tuTrack").style.transform = `translateX(-${state.tuIdx * 100}%)`;
+      view.querySelector("#tuPrev").disabled = state.tuIdx === 0;
+      view.querySelector("#tuNext").disabled = state.tuIdx >= slideCount - 1;
+      view.querySelectorAll(".tuDot").forEach((d, i) => d.classList.toggle("on", i === state.tuIdx));
+      const entry = tus[state.tuIdx];
+      const cardsEl = view.querySelector("#cards");
+      cardsEl.classList.remove("tuAnim");
+      void cardsEl.offsetWidth; // restart the card entry animation
+      cardsEl.innerHTML = counterCardsHTML(name, data, state.page, entry);
+      cardsEl.classList.add("tuAnim");
+      wireCards();
+    };
+    view.querySelector("#tuPrev").addEventListener("click", () => goTo(state.tuIdx - 1));
+    view.querySelector("#tuNext").addEventListener("click", () => goTo(state.tuIdx + 1));
+    view.querySelectorAll(".tuDot").forEach((d) => d.addEventListener("click", () => goTo(+d.dataset.i)));
+  }
+}
+
+/* ══════════ VOICE INPUT ══════════ */
+// Speech recognition mangles Marvel names constantly, so matching is alias-driven.
+// Longest aliases match first so "sue storm" lands on Invisible Woman, not Storm.
+const ALIASES = {
+  "Angela": ["angela"],
+  "Captain America": ["captain america", "captain", "cap"],
+  "Devil Dinosaur": ["devil dinosaur", "devil dino", "dinosaur", "dino"],
+  "Doctor Strange": ["doctor strange", "dr strange", "strange"],
+  "Emma Frost": ["emma frost", "emma"],
+  "Groot": ["groot", "grout", "root"],
+  "Hulk": ["hulk", "the hulk"],
+  "Magneto": ["magneto"],
+  "Peni Parker": ["peni parker", "penny parker", "peni", "penny"],
+  "Rogue": ["rogue"],
+  "The Thing": ["the thing", "thing", "ben grimm"],
+  "Thor": ["thor"],
+  "Venom": ["venom"],
+  "Black Cat": ["black cat", "felicia"],
+  "Black Panther": ["black panther", "panther"],
+  "Black Widow": ["black widow", "widow", "natasha"],
+  "Blade": ["blade"],
+  "Cyclops": ["cyclops", "scott summers", "psyclops"],
+  "Daredevil": ["daredevil", "dare devil", "matt murdock"],
+  "Deadpool": ["deadpool", "dead pool", "wade"],
+  "Elsa Bloodstone": ["elsa bloodstone", "elsa", "bloodstone"],
+  "Hawkeye": ["hawkeye", "hawk eye", "hawk i"],
+  "Hela": ["hela", "hella", "heela", "haila", "hala"],
+  "Human Torch": ["human torch", "torch", "johnny storm", "johnny"],
+  "Iron Fist": ["iron fist", "fist"],
+  "Iron Man": ["iron man", "ironman", "tony stark", "tony"],
+  "Magik": ["magik", "magic", "illyana"],
+  "Mister Fantastic": ["mister fantastic", "mr fantastic", "fantastic", "reed"],
+  "Moon Knight": ["moon knight", "moonlight", "moon night", "moonknight"],
+  "Namor": ["namor", "name or", "namour"],
+  "Phoenix": ["phoenix", "jean grey", "jean gray", "jean"],
+  "Psylocke": ["psylocke", "psy lock", "psylock", "silok", "cylock", "sai lock"],
+  "Scarlet Witch": ["scarlet witch", "wanda", "witch", "scarlett witch"],
+  "Spider-Man": ["spider man", "spiderman", "spidey", "peter parker"],
+  "Squirrel Girl": ["squirrel girl", "squirrel"],
+  "Star-Lord": ["star lord", "starlord", "quill"],
+  "Storm": ["storm", "ororo"],
+  "The Punisher": ["the punisher", "punisher", "frank castle", "frank"],
+  "Winter Soldier": ["winter soldier", "bucky"],
+  "Wolverine": ["wolverine", "logan", "wolvie"],
+  "Adam Warlock": ["adam warlock", "adam", "warlock"],
+  "Cloak & Dagger": ["cloak and dagger", "cloak dagger", "cloak", "dagger"],
+  "Gambit": ["gambit", "remy"],
+  "Invisible Woman": ["invisible woman", "sue storm", "invisible", "sue"],
+  "Jeff the Land Shark": ["jeff the land shark", "land shark", "jeff", "shark"],
+  "Loki": ["loki", "low key", "lokey"],
+  "Luna Snow": ["luna snow", "luna"],
+  "Mantis": ["mantis", "mantes"],
+  "Rocket Raccoon": ["rocket raccoon", "rocket", "raccoon"],
+  "Ultron": ["ultron"],
+  "White Fox": ["white fox", "fox"],
+};
+
+// Pre-sort: longest alias first so multi-word names win before single-word fragments
+const ALIAS_LIST = Object.entries(ALIASES)
+  .flatMap(([hero, list]) => list.map((a) => ({ hero, alias: a })))
+  .sort((a, b) => b.alias.length - a.alias.length);
+
+function parseHeroes(transcript) {
+  let text = " " + transcript.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ") + " ";
+  const found = [];
+  for (const { hero, alias } of ALIAS_LIST) {
+    const re = new RegExp("\\b" + alias.replace(/\s+/g, "\\s+") + "\\b");
+    if (re.test(text)) {
+      text = text.replace(re, " "); // consume so fragments can't double-match
+      if (!found.includes(hero)) found.push(hero);
+    }
+  }
+  return found;
+}
+
+let rec = null, listening = false;
+function setHeard(text, html) {
+  const h = document.getElementById("heard");
+  if (!h) return;
+  if (html) h.innerHTML = text; else h.textContent = text;
+}
+
+function toggleMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    setHeard("Voice input isn't supported in this browser — but tap the search box and use your keyboard's mic button instead.", true);
+    return;
+  }
+  if (listening && rec) { try { rec.stop(); } catch (e) {} return; }
+
+  rec = new SR();
+  rec.lang = "en-US";
+  rec.interimResults = true;
+  rec.continuous = false;
+  let finalText = "";
+
+  rec.onstart = () => {
+    listening = true;
+    const btn = document.getElementById("mic");
+    if (btn) { btn.classList.add("live"); btn.textContent = "⏹ Listening…"; }
+    setHeard("Say the enemy heroes — e.g. \u201cSpider-Man, Hela, Luna, Venom\u201d");
+  };
+  rec.onresult = (e) => {
+    let interim = "";
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalText += e.results[i][0].transcript + " ";
+      else interim += e.results[i][0].transcript;
+    }
+    setHeard("Heard: \u201c" + (finalText + interim).trim() + "\u201d");
+  };
+  rec.onerror = (e) => {
+    listening = false;
+    const btn = document.getElementById("mic");
+    if (btn) { btn.classList.remove("live"); btn.textContent = "🎤 Voice"; }
+    setHeard(e.error === "not-allowed" || e.error === "service-not-allowed"
+      ? "Mic permission denied — allow microphone access for this site in your browser settings, or use the keyboard mic in the search box."
+      : "Didn't catch that — tap the mic and try again.", false);
+  };
+  rec.onend = () => {
+    listening = false;
+    const matched = parseHeroes(finalText);
+    const targetKey = state.tab === "bans" ? "banComp" : "team";
+    let added = 0;
+    for (const hero of matched) {
+      if (state[targetKey].length < 6 && !state[targetKey].includes(hero)) { state[targetKey].push(hero); added++; }
+    }
+    state.lastHeard = finalText.trim()
+      ? `Heard: \u201c${finalText.trim()}\u201d — matched <b>${added ? matched.join(", ") : "no hero names"}</b>`
+      : "";
+    render();
+  };
+  try {
+    rec.start();
+  } catch (e) {
+    // calling start() twice in quick succession throws on some browsers — reset cleanly
+    listening = false;
+    setHeard("Didn't catch that — tap the mic and try again.", false);
+  }
+}
+
+/* ══════════ TEAM ANALYZER ══════════ */
+// Playstyle tags used to read what an enemy comp is trying to do
+const TAGS = {
+  "Angela":["brawl","dive"], "Captain America":["dive","brawl"], "Devil Dinosaur":["brawl","dive"],
+  "Doctor Strange":["brawl","shield"], "Emma Frost":["brawl","antidive"], "Groot":["brawl","shield"],
+  "Hulk":["dive","brawl"], "Magneto":["shield","brawl"], "Peni Parker":["antidive","zone"],
+  "Rogue":["dive","air"], "The Thing":["brawl","antidive"], "Thor":["brawl","dive"], "Venom":["dive"],
+  "Black Cat":["dive"], "Black Panther":["dive"], "Black Widow":["poke"], "Blade":["brawl","dive"],
+  "Cyclops":["poke"], "Daredevil":["dive","brawl"], "Deadpool":["dive","brawl"], "Elsa Bloodstone":["brawl"],
+  "Hawkeye":["poke"], "Hela":["poke"], "Human Torch":["air","poke"], "Iron Fist":["dive"],
+  "Iron Man":["air","poke"], "Magik":["dive"], "Mister Fantastic":["brawl"], "Moon Knight":["poke"],
+  "Namor":["poke","antidive"], "Phoenix":["poke"], "Psylocke":["dive"], "Scarlet Witch":["brawl"],
+  "Spider-Man":["dive"], "Squirrel Girl":["poke"], "Star-Lord":["poke"], "Storm":["air","poke"],
+  "The Punisher":["poke"], "Winter Soldier":["poke","brawl"], "Wolverine":["dive"],
+  "Adam Warlock":["sustain"], "Cloak & Dagger":["sustain"], "Gambit":["sustain","poke"],
+  "Invisible Woman":["sustain","antidive"], "Jeff the Land Shark":["sustain"], "Loki":["sustain"],
+  "Luna Snow":["sustain","antidive"], "Mantis":["sustain","antidive"], "Rocket Raccoon":["sustain"],
+  "Ultron":["sustain","air"], "White Fox":["sustain","antidive"],
+};
+
+const ARCHETYPES = {
+  dive: {
+    name: "Dive comp",
+    what: "They want to jump past your front line and collapse on your healers — kills happen in your backline, not at the choke.",
+    plan: "Group tight, save peel cooldowns for the engage, and make their entries painful. Anti-dive zone control and crowd control win this outright.",
+  },
+  poke: {
+    name: "Poke / siege comp",
+    what: "They want to sit at range, chip your team down, and win the fight before it ever starts. They thrive when you walk slowly into their sightlines.",
+    plan: "Shields neutralize their damage while you close distance — or skip the staring contest and dive their angles directly. Don't trade poke with a poke comp.",
+  },
+  brawl: {
+    name: "Brawl deathball",
+    what: "They want to group up and walk through you as one unit, winning extended close-range fights with sustain and raw front-line muscle.",
+    plan: "Don't meet them head-on. Kite, hold range, shred their tanks with percent damage, and punish the clump with big AoE ults.",
+  },
+  air: {
+    name: "Air superiority comp",
+    what: "Multiple fliers want to control the sky and rain damage from angles your team can't comfortably answer.",
+    plan: "Hitscan is non-negotiable — fliers melt against it. Add anti-air tools and force them to ground level where they're weakest.",
+  },
+  sustain: {
+    name: "Sustain / triple-support comp",
+    what: "With three healers, they want to out-last you — your damage gets healed back before kills confirm, and they win on ult economy.",
+    plan: "Stop trickling damage and start bursting. Coordinate ults to break through the healing, dive the supports directly, and win the ult-economy war.",
+  },
+  flex: {
+    name: "Balanced flex comp",
+    what: "No single dominant gameplan — they're running a standard mix and will adapt to whatever you show them.",
+    plan: "No comp-wide trick here, so win the individual matchups: counter their strongest carries directly and play your team's best heroes.",
+  },
+};
+
+function analyzeTeam(team) {
+  const counts = { dive: 0, poke: 0, brawl: 0, air: 0, sustain: 0 };
+  for (const name of team) {
+    for (const t of TAGS[name] || []) if (t in counts) counts[t]++;
+  }
+  // pick the dominant read; sustain needs a true triple-support to trigger
+  const supports = team.filter((n) => heroRole(n) === "S").length;
+  let key = "flex";
+  if (supports >= 3) key = "sustain";
+  else {
+    const order = ["dive", "air", "poke", "brawl"].sort((a, b) => counts[b] - counts[a]);
+    if (counts[order[0]] >= Math.max(2, Math.ceil(team.length / 3))) key = order[0];
+  }
+  // aggregate counters: rank 1 = 3pts, rank 2 = 2pts, rank 3 = 1pt, summed across their picks
+  const scores = { V: {}, D: {}, S: {} };
+  for (const enemy of team) {
+    const c = COUNTERS[enemy];
+    if (!c) continue;
+    for (const r of ["V", "D", "S"]) {
+      c[r].forEach(([name], i) => {
+        if (!scores[r][name]) scores[r][name] = { pts: 0, into: [] };
+        scores[r][name].pts += 3 - i;
+        scores[r][name].into.push(enemy);
+      });
+    }
+  }
+  const ranked = {};
+  for (const r of ["V", "D", "S"]) {
+    ranked[r] = Object.entries(scores[r])
+      .map(([name, v]) => {
+        // coverage (how many enemies this counters) leads; tier adds a real but
+        // secondary pull so a strong, in-meta hero wins ties over a weak paper counter
+        const tierBonus = TIER_SCORE[tierOf(name)] * 0.6;
+        return { name, into: v.into, score: v.pts + tierBonus };
+      })
+      .sort((a, b) => b.score - a.score);
+  }
+  return { arch: ARCHETYPES[key], ranked };
+}
+
+let speaking = false;
+function toggleSpeech(text, btn) {
+  if (!("speechSynthesis" in window)) { btn.textContent = "Voice not supported here"; return; }
+  if (speaking) { speechSynthesis.cancel(); speaking = false; btn.classList.remove("speaking"); btn.textContent = "🔊 Read it to me"; return; }
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 1.05;
+  u.onend = () => { speaking = false; btn.classList.remove("speaking"); btn.textContent = "🔊 Read it to me"; };
+  speaking = true; btn.classList.add("speaking"); btn.textContent = "⏹ Stop";
+  speechSynthesis.speak(u);
+}
+
+function renderTeam() {
+  if (state.teamView === "plan" && state.team.length) { renderPlan(); return; }
+
+  const q = state.teamQuery.trim().toLowerCase();
+  const heroes = HEROES.filter((h) =>
+    (state.teamRoleFilter === "ALL" || h.role === state.teamRoleFilter) &&
+    (!q || h.name.toLowerCase().includes(q)) &&
+    !state.team.includes(h.name)
+  );
+
+  const slots = state.team.map((n) => `
+    <span class="slot" style="border-color:${ROLE[heroRole(n)].color}">
+      ${avaHTML(n, ROLE[heroRole(n)].color)} ${esc(n)}
+      <button class="x" data-remove="${esc(n)}" title="Remove">×</button>
+    </span>`).join("") +
+    Array(Math.max(0, 6 - state.team.length)).fill('<span class="slotEmpty">+</span>').join("");
+
+  const pills = ["ALL", "V", "D", "S"].map((r) => {
+    const on = state.teamRoleFilter === r;
+    const styleOn = on ? `style="background:${r === "ALL" ? "#e9ecf5" : ROLE[r].color}"` : "";
+    const label = r === "ALL" ? "All" : `${ROLE[r].label}<small>${ROLE[r].alt}</small>`;
+    return `<button class="pill ${on ? "on" : ""}" ${styleOn} data-role="${r}">${label}</button>`;
+  }).join("");
+
+  const chips = heroes.map((h) => `
+    <button class="chip" style="border-left-color:${ROLE[h.role].color}" data-hero="${esc(h.name)}">
+      ${avaHTML(h.name, ROLE[h.role].color)}
+      <div>
+        <div class="chipName">${esc(h.name)}${h.flex ? '<span class="flexBadge">FLEX</span>' : ""}</div>
+        <div class="chipRole" style="color:${ROLE[h.role].color}">${ROLE[h.role].label}</div>
+      </div>
+    </button>`).join("");
+
+  view.innerHTML = `
+    <div class="tray">
+      <div class="trayLabel">Enemy team — tap heroes below or speak them (${state.team.length}/6)</div>
+      ${slots}
+      <button class="micBtn" id="mic" title="Speak the enemy team">🎤 Voice</button>
+      ${state.team.length ? '<button class="clearBtn" id="clear" title="Clear the enemy team">Clear</button>' : ""}
+      <button class="analyzeBtn" id="analyze" ${state.team.length === 0 ? "disabled" : ""}>Analyze</button>
+      <div class="heard" id="heard">${state.lastHeard || ""}</div>
+    </div>
+    <div class="toolbar">
+      ${pills}
+      <input class="search" id="tsearch" placeholder="Search hero…" value="${esc(state.teamQuery)}">
+    </div>
+    <div class="grid">${chips}</div>`;
+
+  view.querySelector("#mic").addEventListener("click", toggleMic);
+  const clearBtn = view.querySelector("#clear");
+  if (clearBtn) clearBtn.addEventListener("click", () => {
+    if (listening && rec) rec.stop();
+    state.team = [];
+    state.lastHeard = "";
+    render();
+  });
+
+  view.querySelectorAll(".pill").forEach((b) =>
+    b.addEventListener("click", () => { state.teamRoleFilter = b.dataset.role; render(); }));
+  view.querySelectorAll(".chip").forEach((b) =>
+    b.addEventListener("click", () => {
+      if (state.team.length < 6) { state.team.push(b.dataset.hero); render(); }
+    }));
+  view.querySelectorAll(".x").forEach((b) =>
+    b.addEventListener("click", () => {
+      state.team = state.team.filter((n) => n !== b.dataset.remove); render();
+    }));
+  view.querySelector("#analyze").addEventListener("click", () => {
+    state.teamView = "plan"; state.teamPage = 0; render();
+  });
+  const ts = view.querySelector("#tsearch");
+  ts.addEventListener("input", (e) => {
+    state.teamQuery = e.target.value;
+    const pos = e.target.selectionStart;
+    render();
+    const s2 = view.querySelector("#tsearch");
+    s2.focus(); s2.setSelectionRange(pos, pos);
+  });
+}
+
+function renderPlan() {
+  const { arch, ranked } = analyzeTeam(state.team);
+  const maxPage = Math.max(ranked.V.length, ranked.D.length, ranked.S.length, 1) - 1;
+  state.teamPage = Math.min(state.teamPage, maxPage);
+
+  const topNames = ["V","D","S"].map((r) => ranked[r][0] ? ranked[r][0].name : null).filter(Boolean);
+  const speech = `${arch.name}. ${arch.what} ${arch.plan} Top picks: ${topNames.join(", ")}.`;
+
+  const cards = ["V", "D", "S"].map((r) => {
+    const entry = ranked[r][state.teamPage];
+    if (!entry) return `
+      <div class="card dead" style="border-top-color:${ROLE[r].color}">
+        <div class="cardRole" style="color:${ROLE[r].color}">${ROLE[r].label}</div>
+        <div class="why">No more ranked picks in this role.</div>
+      </div>`;
+    return `
+      <button class="card" data-hero="${esc(entry.name)}" title="See counters for ${esc(entry.name)}"
+        style="border-top-color:${ROLE[r].color};background:linear-gradient(180deg, ${ROLE[r].dim}, #11162b 55%)">
+        <div class="cardRole" style="color:${ROLE[r].color}">${ROLE[r].label} pick</div>
+        <div class="cardHero">
+          ${avaHTML(entry.name, ROLE[r].color)}
+          <div class="cardName">${esc(entry.name)}</div>
+          ${tierBadge(entry.name)}
+        </div>
+        <div class="strongInto">Strong into: ${entry.into.map(esc).join(", ")}</div>
+      </button>`;
+  }).join("");
+
+  view.innerHTML = `
+    <button class="back" id="backEdit">← Edit enemy team</button>
+    <div class="plan">
+      <div class="planHead">
+        <div class="planTitle">${arch.name}</div>
+        <button class="speakBtn" id="speak">🔊 Read it to me</button>
+      </div>
+      <div class="planBody">
+        <b>What they're trying to do:</b> ${arch.what}<br><br>
+        <b>Your game plan:</b> ${arch.plan}
+      </div>
+    </div>
+    <div class="pager">
+      <button class="navBtn" id="prev" ${state.teamPage === 0 ? "disabled" : ""}>← Prev</button>
+      <div class="pagerLabel">Counter rank <b>#${state.teamPage + 1}</b> of ${maxPage + 1}</div>
+      <button class="navBtn" id="next" ${state.teamPage >= maxPage ? "disabled" : ""}>Next →</button>
+    </div>
+    <div class="cards">${cards}</div>
+    <div class="hint">Picks are scored across the whole enemy team — a hero that counters three of their picks outranks one that hard-counters a single pick. Tap a card to see that hero's own matchups.</div>`;
+
+  view.querySelector("#backEdit").addEventListener("click", () => {
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+    speaking = false;
+    state.teamView = "pick"; render();
+  });
+  view.querySelector("#speak").addEventListener("click", (e) => toggleSpeech(speech, e.currentTarget));
+  view.querySelector("#prev").addEventListener("click", () => { if (state.teamPage > 0) { state.teamPage--; render(); } });
+  view.querySelector("#next").addEventListener("click", () => { if (state.teamPage < maxPage) { state.teamPage++; render(); } });
+  view.querySelectorAll(".card[data-hero]").forEach((b) =>
+    b.addEventListener("click", () => {
+      state.tab = "solo"; pick(b.dataset.hero);
+    }));
+}
+
+/* ══════════ BAN HELPER ══════════ */
+// Blends two signals equally: how oppressive a hero is in the current meta (BAN_PRIORITY)
+// and how hard it counters the comp you're planning to run (threatsToComp). A hero that's
+// both a meta menace AND a hard counter to your plan rises to the top. With no comp entered,
+// it falls back to a pure meta ban list.
+function banRecommendations(comp) {
+  const threat = threatsToComp(comp);
+  const maxThreat = Math.max(1, ...Object.values(threat).map((t) => t.weight));
+  const compSet = new Set(comp);
+  const recs = HEROES
+    .filter((h) => !compSet.has(h.name)) // never suggest banning your own pick
+    .map((h) => {
+      const meta = banPriorityOf(h.name);          // 0–10
+      const t = threat[h.name];
+      const compScore = t ? (t.weight / maxThreat) * 10 : 0; // 0–10 normalized
+      // equal weight when a comp is entered; pure meta when it isn't
+      const score = comp.length ? meta * 0.5 + compScore * 0.5 : meta;
+      let why, tag;
+      if (comp.length && t && meta >= 6) { tag = "both"; why = `Top meta threat <i>and</i> hard-counters your ${t.into.join(", ")}`; }
+      else if (comp.length && t) { tag = "comp"; why = `Counters your ${t.into.join(", ")}`; }
+      else if (meta >= 7) { tag = "meta"; why = "One of the strongest, most game-swinging picks this patch"; }
+      else { tag = "meta"; why = "Solid meta-strength ban"; }
+      return { name: h.name, role: h.role, score, tag, why, counters: t ? t.into : [] };
+    })
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return recs;
+}
+
+const TAG_LABEL = { both: "Meta + counter", comp: "Counters your comp", meta: "Meta threat" };
+const TAG_COLOR = { both: "#FF5470", comp: "#4ADEB8", meta: "#FFB454" };
+
+function renderBans() {
+  const q = state.banQuery.trim().toLowerCase();
+  const heroes = HEROES.filter((h) =>
+    (state.banRoleFilter === "ALL" || h.role === state.banRoleFilter) &&
+    (!q || h.name.toLowerCase().includes(q)) &&
+    !state.banComp.includes(h.name)
+  );
+
+  const slots = state.banComp.map((n) => `
+    <span class="slot" style="border-color:${ROLE[heroRole(n)].color}">
+      ${avaHTML(n, ROLE[heroRole(n)].color)} ${esc(n)}
+      <button class="x" data-remove="${esc(n)}" title="Remove">×</button>
+    </span>`).join("") +
+    Array(Math.max(0, 6 - state.banComp.length)).fill('<span class="slotEmpty">+</span>').join("");
+
+  const pills = ["ALL", "V", "D", "S"].map((r) => {
+    const on = state.banRoleFilter === r;
+    const styleOn = on ? `style="background:${r === "ALL" ? "#e9ecf5" : ROLE[r].color}"` : "";
+    const label = r === "ALL" ? "All" : `${ROLE[r].label}<small>${ROLE[r].alt}</small>`;
+    return `<button class="pill ${on ? "on" : ""}" ${styleOn} data-role="${r}">${label}</button>`;
+  }).join("");
+
+  const chips = heroes.map((h) => `
+    <button class="chip" style="border-left-color:${ROLE[h.role].color}" data-hero="${esc(h.name)}">
+      ${avaHTML(h.name, ROLE[h.role].color)}
+      <div>
+        <div class="chipName">${esc(h.name)}${h.flex ? '<span class="flexBadge">FLEX</span>' : ""}</div>
+        <div class="chipRole" style="color:${ROLE[h.role].color}">${ROLE[h.role].label}</div>
+      </div>
+    </button>`).join("");
+
+  const recs = banRecommendations(state.banComp).slice(0, 6);
+  const recCards = recs.map((r, i) => `
+    <button class="banCard" data-hero="${esc(r.name)}" title="See counters for ${esc(r.name)}">
+      <div class="banRank">${i + 1}</div>
+      ${avaHTML(r.name, ROLE[r.role].color)}
+      <div class="banInfo">
+        <div class="banName">${esc(r.name)} ${tierBadge(r.name)}</div>
+        <div class="banWhy">${r.why}</div>
+      </div>
+      <span class="banTag" style="color:${TAG_COLOR[r.tag]};border-color:${TAG_COLOR[r.tag]}">${TAG_LABEL[r.tag]}</span>
+    </button>`).join("");
+
+  const heading = state.banComp.length
+    ? `Recommended bans for your comp (${state.banComp.length}/6 planned)`
+    : "Top meta bans this patch";
+
+  view.innerHTML = `
+    <div class="tray">
+      <div class="trayLabel">Your planned comp — tap to add or speak what your group is running (${state.banComp.length}/6). Leave empty for a pure meta ban list.</div>
+      ${slots}
+      <button class="micBtn" id="mic" title="Speak your planned comp">🎤 Voice</button>
+      ${state.banComp.length ? '<button class="clearBtn" id="banClear" title="Clear your comp">Clear</button>' : ""}
+      <div class="heard" id="heard">${state.lastHeard || ""}</div>
+    </div>
+    <div class="banResults">
+      <div class="banHeading">${heading}</div>
+      ${recCards}
+    </div>
+    <div class="hint" style="margin-bottom:16px">Bans blend two things equally: how oppressive a hero is this patch and how hard it counters the comp you're planning. <span style="color:${TAG_COLOR.both}">Meta + counter</span> picks are the clearest bans. Tap any card to see that hero's own counters. Ban data reflects high-rank consensus and shifts each patch.</div>
+    <div class="toolbar">
+      ${pills}
+      <input class="search" id="bsearch" placeholder="Search hero…" value="${esc(state.banQuery)}">
+    </div>
+    <div class="grid">${chips}</div>`;
+
+  view.querySelectorAll(".pill").forEach((b) =>
+    b.addEventListener("click", () => { state.banRoleFilter = b.dataset.role; render(); }));
+  view.querySelectorAll(".chip").forEach((b) =>
+    b.addEventListener("click", () => {
+      if (state.banComp.length < 6) { state.banComp.push(b.dataset.hero); render(); }
+    }));
+  view.querySelectorAll(".x").forEach((b) =>
+    b.addEventListener("click", () => {
+      state.banComp = state.banComp.filter((n) => n !== b.dataset.remove); render();
+    }));
+  const bclear = view.querySelector("#banClear");
+  if (bclear) bclear.addEventListener("click", () => { state.banComp = []; state.lastHeard = ""; render(); });
+  view.querySelector("#mic").addEventListener("click", toggleMic);
+  view.querySelectorAll(".banCard").forEach((b) =>
+    b.addEventListener("click", () => { state.tab = "solo"; pick(b.dataset.hero); }));
+  const bs = view.querySelector("#bsearch");
+  bs.addEventListener("input", (e) => {
+    state.banQuery = e.target.value;
+    const pos = e.target.selectionStart;
+    render();
+    const s2 = view.querySelector("#bsearch");
+    s2.focus(); s2.setSelectionRange(pos, pos);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
