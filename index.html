@@ -309,8 +309,8 @@
 <body>
 <div class="shell">
   <div class="brand">Rivals <em>Counter Lab</em></div>
-  <div class="sub">Season 9 · 52 heroes · Jubilee is live · Team-Up overhaul + Black Widow rework in effect</div>
-  <div class="metaNote">Counter order blends matchup strength with current win-rate tier (<b>S</b> strongest → <b>F</b> weakest — Counterwatch win rates cross-checked against RivalsMeta, RivalsTracker ban data, Mobalytics, and editorial tier lists, updated Jul 18) — a pick has to counter the target and be performing well to lead. A <b>weak pick</b> badge means the hero counters on paper but is underperforming this patch. Jubilee's counters are early-season and will firm up as data matures.</div>
+  <div class="sub">Season 10 · 54 heroes · The Hood &amp; Gorr the God Butcher are live · Team-Up overhaul + Black Widow rework in effect</div>
+  <div class="metaNote">Counter order blends matchup strength with current win-rate tier (<b>S</b> strongest → <b>F</b> weakest — Counterwatch win rates cross-checked against RivalsMeta, RivalsTracker ban data, Mobalytics, and editorial tier lists, base list updated Jul 18, The Hood updated Sep 21) — a pick has to counter the target and be performing well to lead. A <b>weak pick</b> badge means the hero counters on paper but is underperforming this patch. Gorr the God Butcher's tier and counters are launch-week and will firm up as data matures.</div>
   <div class="mainTabs">
     <button class="mainTab on" id="tabSolo">Character Counters</button>
     <button class="mainTab" id="tabBans">Ban Helper</button>
@@ -333,6 +333,7 @@ const HEROES = [
   { name: "Magneto", role: "V" },
   { name: "Peni Parker", role: "V" },
   { name: "Rogue", role: "V" },
+  { name: "The Hood", role: "V" },
   { name: "The Thing", role: "V" },
   { name: "Thor", role: "V" },
   { name: "Venom", role: "V" },
@@ -345,6 +346,7 @@ const HEROES = [
   { name: "Daredevil", role: "D" },
   { name: "Deadpool", role: "D", flex: true },
   { name: "Elsa Bloodstone", role: "D" },
+  { name: "Gorr the God Butcher", role: "D" },
   { name: "Hawkeye", role: "D" },
   { name: "Hela", role: "D" },
   { name: "Human Torch", role: "D" },
@@ -404,9 +406,9 @@ const TEAMUPS = {
       effect: "Blade-charged fireworks add burn pressure to her plasmoids",
       note: "Her damage threat rises; her 275 HP doesn't. Dive her exactly the same — Black Panther and Spider-Man remain the play, just respect the extra chip on the way in.",
       boost: [] },
-    { name: "Vampiric Kin", partner: "The Hood (arrives in Season 9.5)",
+    { name: "Vampiric Kin", partner: "The Hood",
       effect: "Vampire-themed lifesteal link — sustain through her own damage",
-      note: "Lifesteal punishes slow chip damage. Burst her or CC her — Mantis sleep and Luna freeze switch the sustain off entirely. Until The Hood ships, she only gets the base effect.",
+      note: "Lifesteal punishes slow chip damage. Burst her or CC her — Mantis sleep and Luna freeze switch the sustain off entirely.",
       boost: ["Mantis", "Luna Snow"] },
   ],
   "Invisible Woman": [
@@ -906,6 +908,26 @@ const TEAMUPS = {
       note: "A bigger combo payoff is more reason to shoot him down before it ever lines up. Devil Dinosaur's Impact Beam swatting the built-in anti-flier target matters even more now.",
       boost: ["Devil Dinosaur"] },
   ],
+  "The Hood": [
+    { name: "Chaos Collision", partner: "Scarlet Witch",
+      effect: "Reactivating the arcane zone teleports him to its center, and with Scarlet Witch the teleport adds a shockwave that damages and pulls nearby enemies toward him",
+      note: "The whole combo still ends with him standing in melee range after the teleport. Iron Fist's auto-tracking punch chain catches him the instant he lands, shockwave or not.",
+      boost: ["Iron Fist"] },
+    { name: "New Moon's Shadow", partner: "Moon Knight",
+      effect: "Abyssal Veil becomes a physical Lunar Barrier with its own Health that blocks projectiles, detonating with Damage and Healing Reduction when broken",
+      note: "It's a wall against projectiles specifically — it does nothing to stop someone walking straight through it. Wolverine and Iron Fist just melee past the barrier the same way they always closed on him.",
+      boost: ["Wolverine", "Iron Fist"] },
+  ],
+  "Gorr the God Butcher": [
+    { name: "Ragnarök", partner: "Hela",
+      effect: "Symbiote fragments from scythe hits grant Bonus Health to Gorr and nearby allies, with extended scythe range",
+      note: "The extra reach and healing only kick in once the scythe actually connects — deny the setup and none of it matters. The Thing's suppression and wide AoE swings still farm his Berserkers before he ever gets a fragment off.",
+      boost: ["The Thing"] },
+    { name: "Hive Mind", partner: "Venom",
+      effect: "Black Berserkers gain a damage boost and apply Slow on hit while Venom is on the team",
+      note: "Tougher Berserkers are still fragile, disposable summons, not a harder Gorr to kill. Luna Snow's freeze still locks him out of the follow-up the instant he pulls someone in.",
+      boost: ["Luna Snow"] },
+  ],
 };
 
 const COUNTERS = {
@@ -1077,6 +1099,23 @@ const COUNTERS = {
       ["Mantis", "Sleep her mid-flight and she drops like a rock"],
       ["Luna Snow", "Freeze cancels her dive and her ult"],
       ["Invisible Woman", "Push denies her grab on your backline"],
+    ],
+  },
+  "The Hood": {
+    V: [
+      ["Doctor Strange", "Shield eats his hitscan pressure and wins the sustained duel he needs to farm energy"],
+      ["Magneto", "Bubble and shields block the rifle fire that builds his meter in the first place"],
+      ["Groot", "Walls deny him the sightlines his hitscan kit depends on"],
+    ],
+    D: [
+      ["Wolverine", "Percent-health shred ignores whatever lifesteal Half-Demon State gives back"],
+      ["Iron Fist", "Auto-tracking punch chain closes the gap before he ever reaches full energy"],
+      ["Psylocke", "Stealth burst catches him before Mantle of Oblivion or Void Walk are up"],
+    ],
+    S: [
+      ["Cloak & Dagger", "Blind shuts off the hitscan pressure his whole kit runs on"],
+      ["Mantis", "Sleep cancels Half-Demon State mid-rampage"],
+      ["Luna Snow", "Freeze locks him out of Half-Demon State the instant he flips it on"],
     ],
   },
   "The Thing": {
@@ -1269,6 +1308,23 @@ const COUNTERS = {
       ["Mantis", "Sleep resets her dive — kill her early, keep her at zero stacks"],
       ["Luna Snow", "Freeze stops the momentum engine cold"],
       ["Invisible Woman", "Push denies the close-range window her kit needs"],
+    ],
+  },
+  "Gorr the God Butcher": {
+    V: [
+      ["Peni Parker", "Mines punish every Berserker-fueled dive into your backline"],
+      ["Emma Frost", "CC interrupts the swing chain before Symbiote Swarm can snowball"],
+      ["The Thing", "Suppression cancels Living Abyss and his wide AoE swings farm the Berserkers outright"],
+    ],
+    D: [
+      ["Moon Knight", "AoE clears his Berserkers before they can feed Bonus Health"],
+      ["Wolverine", "Percent-health shred ignores whatever the snowball has bought him"],
+      ["Psylocke", "Stealth burst catches him before Living Abyss saves him"],
+    ],
+    S: [
+      ["Luna Snow", "Freeze locks him out mid-engage — the classic answer"],
+      ["Mantis", "Sleep denies the dive before Symbiote Swarm gets rolling"],
+      ["Cloak & Dagger", "Blind ruins his melee tracking on the way in"],
     ],
   },
   "Hawkeye": {
@@ -1818,13 +1874,20 @@ const heroRole = (name) => { const h = HEROES.find((x) => x.name === name); retu
 // Used ONLY as a tie-breaker between heroes that already counter the enemy, and to
 // flag picks that are weak in the current meta. Matchup data still decides who counters whom.
 const TIER = {
-  // Season 9 — Counterwatch shrunk win rate, all ranks, updated Jul 18 2026 (post-launch + Jul 11 hotfix)
+  // Season 9 — Counterwatch shrunk win rate, all ranks, updated Jul 18 2026 (post-launch + Jul 11 hotfix).
+  // The base S9 list below is not re-verified for Season 10; only the two Season 9.5/10 additions
+  // just below it reflect current data.
   "Peni Parker":"S","Magik":"S","Rocket Raccoon":"S","Mantis":"S","Ultron":"S","Storm":"S",
   "Daredevil":"A","Devil Dinosaur":"A","Blade":"A","Black Panther":"A","Mister Fantastic":"A","Captain America":"A","Hulk":"A","Iron Fist":"A",
   "Spider-Man":"B","Hela":"B","White Fox":"B","Angela":"B","Rogue":"B","Cyclops":"B","Black Cat":"B","Jubilee":"B","Iron Man":"B","Thor":"B","Star-Lord":"B","Psylocke":"B",
   "Wolverine":"C","The Thing":"C","Venom":"C","Doctor Strange":"C","Luna Snow":"C","Winter Soldier":"C","Emma Frost":"C","Deadpool":"C","Groot":"C","Invisible Woman":"C","Cloak & Dagger":"C","The Punisher":"C","Scarlet Witch":"C",
   "Adam Warlock":"D","Namor":"D","Magneto":"D","Loki":"D","Gambit":"D","Elsa Bloodstone":"D","Human Torch":"D","Squirrel Girl":"D","Moon Knight":"D","Jeff the Land Shark":"D",
   "Phoenix":"F","Hawkeye":"F","Black Widow":"F",
+  // Season 9.5 / 10 additions:
+  "The Hood": "B", // Counterwatch, all ranks, updated Sep 21 2026 — 52.8% win rate across 173k+ games.
+  "Gorr the God Butcher": "A", // Very early data (launched Sep 11 2026) — trackers show a launch-inflated
+  // ~76% win rate on small sample. Placed at A rather than S to hedge against that inflation; treat as
+  // unverified and expect a correction once the sample matures or he gets a balance pass.
 };
 // "Hulk" maps to Counterwatch's "Bruce Banner" A-tier entry. Deadpool listed once (C) as the app
 // treats him as one flex hero, though Counterwatch now splits his three role-kits separately.
@@ -1846,6 +1909,9 @@ const BAN_PRIORITY = {
   "Ultron": 6, "Devil Dinosaur": 6, "Blade": 6, "Spider-Man": 6, "Psylocke": 5,
   "Hela": 5, "Mister Fantastic": 5, "Wolverine": 4, "Cyclops": 4, "Captain America": 4,
   "Scarlet Witch": 3, "Venom": 3, "Black Cat": 3, "Jubilee": 3,
+  // Gorr: launch-week reporting calls him a near-guaranteed pick/ban past Gold III on the back of the
+  // win-rate spike above — provisional, likely to cool once the meta and any nerf pass settle.
+  "Gorr the God Butcher": 7,
 };
 const banPriorityOf = (name) => BAN_PRIORITY[name] || 2;
 
@@ -2118,6 +2184,7 @@ const ALIASES = {
   "Magneto": ["magneto"],
   "Peni Parker": ["peni parker", "penny parker", "peni", "penny"],
   "Rogue": ["rogue"],
+  "The Hood": ["the hood", "hood", "parker robbins"],
   "The Thing": ["the thing", "thing", "ben grimm"],
   "Thor": ["thor"],
   "Venom": ["venom"],
@@ -2129,10 +2196,12 @@ const ALIASES = {
   "Daredevil": ["daredevil", "dare devil", "matt murdock"],
   "Deadpool": ["deadpool", "dead pool", "wade"],
   "Elsa Bloodstone": ["elsa bloodstone", "elsa", "bloodstone"],
+  "Gorr the God Butcher": ["gorr the god butcher", "gorr", "god butcher"],
   "Hawkeye": ["hawkeye", "hawk eye", "hawk i"],
   "Hela": ["hela", "hella", "heela", "haila", "hala"],
   "Human Torch": ["human torch", "torch", "johnny storm", "johnny"],
   "Iron Fist": ["iron fist", "fist"],
+  "Jubilee": ["jubilee"],
   "Iron Man": ["iron man", "ironman", "tony stark", "tony"],
   "Magik": ["magik", "magic", "illyana"],
   "Mister Fantastic": ["mister fantastic", "mr fantastic", "fantastic", "reed"],
@@ -2250,11 +2319,12 @@ const TAGS = {
   "Angela":["brawl","dive"], "Captain America":["dive","brawl"], "Devil Dinosaur":["brawl","dive"],
   "Doctor Strange":["brawl","shield"], "Emma Frost":["brawl","antidive"], "Groot":["brawl","shield"],
   "Hulk":["dive","brawl"], "Magneto":["shield","brawl"], "Peni Parker":["antidive","zone"],
-  "Rogue":["dive","air"], "The Thing":["brawl","antidive"], "Thor":["brawl","dive"], "Venom":["dive"],
+  "Rogue":["dive","air"], "The Hood":["brawl","poke"], "The Thing":["brawl","antidive"], "Thor":["brawl","dive"], "Venom":["dive"],
   "Black Cat":["dive"], "Black Panther":["dive"], "Black Widow":["poke"], "Blade":["brawl","dive"],
   "Cyclops":["poke"], "Daredevil":["dive","brawl"], "Deadpool":["dive","brawl"], "Elsa Bloodstone":["brawl"],
+  "Gorr the God Butcher":["dive","brawl"],
   "Hawkeye":["poke"], "Hela":["poke"], "Human Torch":["air","poke"], "Iron Fist":["dive"],
-  "Iron Man":["air","poke"], "Magik":["dive"], "Mister Fantastic":["brawl"], "Moon Knight":["poke"],
+  "Iron Man":["air","poke"], "Jubilee":["sustain"], "Magik":["dive"], "Mister Fantastic":["brawl"], "Moon Knight":["poke"],
   "Namor":["poke","antidive"], "Phoenix":["poke"], "Psylocke":["dive"], "Scarlet Witch":["brawl"],
   "Spider-Man":["dive"], "Squirrel Girl":["poke"], "Star-Lord":["poke"], "Storm":["air","poke"],
   "The Punisher":["poke"], "Winter Soldier":["poke","brawl"], "Wolverine":["dive"],
