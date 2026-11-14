@@ -309,8 +309,8 @@
 <body>
 <div class="shell">
   <div class="brand">Rivals <em>Counter Lab</em></div>
-  <div class="sub">Season 10.5 · 54 heroes · Scarlet Witch rework &amp; Season 10.5 balance pass in effect</div>
-  <div class="metaNote">Counter order blends matchup strength with current win-rate tier (<b>S</b> strongest → <b>F</b> weakest — Counterwatch win rates cross-checked against RivalsTracker ban data and editorial tier lists; tiers and ban priority refreshed Oct 15 2026 for Season 10.5). A pick has to counter the target and be performing well to lead. A <b>weak pick</b> badge means the hero counters on paper but is underperforming this patch. Per-hero counter lists are matchup-informed and kit-based; Counterwatch only publishes each hero's top-5 hardest matchups, so lists are spot-checked against that rather than rebuilt from scratch.</div>
+  <div class="sub">Season 11 · 55 heroes · Nightcrawler is live · Season 11 balance pass in effect</div>
+  <div class="metaNote">Counter order blends matchup strength with current win-rate tier (<b>S</b> strongest → <b>F</b> weakest — Counterwatch shrunk win rates, all ranks). <b>Heads up:</b> the tier and ban-rate data was pulled Nov 13 but covers Oct 10 – Nov 12, i.e. Season 10.5 — it does not yet reflect the Season 11 patch, and Nightcrawler has no rating yet (shown as C). Team-Up text and hero changes are updated for Season 11. Counter lists are matchup-informed and kit-based; Counterwatch only publishes each hero's top-5 hardest matchups, so lists are spot-checked against that rather than rebuilt from scratch.</div>
   <div class="mainTabs">
     <button class="mainTab on" id="tabSolo">Character Counters</button>
     <button class="mainTab" id="tabBans">Ban Helper</button>
@@ -376,6 +376,7 @@ const HEROES = [
   { name: "Loki", role: "S" },
   { name: "Luna Snow", role: "S" },
   { name: "Mantis", role: "S" },
+  { name: "Nightcrawler", role: "S" },
   { name: "Rocket Raccoon", role: "S" },
   { name: "Ultron", role: "S" },
   { name: "White Fox", role: "S" },
@@ -407,7 +408,7 @@ const TEAMUPS = {
       note: "Hitscan plus self-heal makes her much harder to out-trade at range, but she's still a Strategist. Black Panther and Spider-Man dives remain the answer — commit before the self-heal stacks up.",
       boost: ["Black Panther", "Spider-Man"] },
     { name: "Vampiric Kin", partner: "Blade",
-      effect: "Deploys a Vampiric Field: allies inside gain Life Steal when attacking. Enhanced: allies in the field also get Continuous Healing (10.5 adds 15/s over 6s to nearby allies)",
+      effect: "Deploys a Vampiric Field: allies inside gain Life Steal when attacking. Enhanced: allies in the field also get Continuous Healing (10.5 adds 15/s over 6s to nearby allies; S11: Lifesteal increased)",
       note: "The field is stationary, so it only pays off while allies stay inside it. Mantis sleep and Luna freeze on the lifesteal carrier switch it off, and displacement wastes the whole field.",
       boost: ["Mantis", "Luna Snow"] },
   ],
@@ -468,23 +469,23 @@ const TEAMUPS = {
       note: "Healing and flat reduction blunt burst, but percent-health damage ignores flat reduction. Wolverine's stacks whittle him down at the same rate (base health 850 → 825 in 10.5).",
       boost: ["Wolverine"] },
     { name: "Primal Punishment", partner: "The Punisher",
-      effect: "Primal Bite is replaced by two magnetic cannons that fire forward. Enhanced: The Punisher can ride him with damage reduction while Devil Dinosaur absorbs part of the damage dealt to him (projectile speed 120 → 150 in S10)",
+      effect: "Primal Bite is replaced by two magnetic cannons that fire forward. Enhanced: The Punisher can ride him with damage reduction while Devil Dinosaur absorbs part of the damage dealt to him (projectile speed 120 → 150 in S10; S11: cooldown increased)",
       note: "More ranged chip, same lumbering hitbox. Out-mobility him — Magik's portals and Storm's flight dodge the grab and burst him down before the cannons matter.",
       boost: ["Magik", "Storm"] },
   ],
   "Doctor Strange": [
     { name: "Gamma Maelstrom", partner: "Hulk",
-      effect: "Maelstrom of Madness charges much faster and loses its Anti-Heal curse. Enhanced: releasing it retains some energy and stored Gamma energy doesn't decay. S10: the spell field no longer loses damage falloff",
+      effect: "Maelstrom of Madness charges much faster and loses its Anti-Heal curse. Enhanced: releasing it retains some energy and stored Gamma energy doesn't decay. S10: the spell field no longer loses damage falloff; S11: the minimum energy retained on release is reduced",
       note: "Less time to react before the ult drops, and no anti-heal to blunt your sustain. Mantis sleep and Luna freeze are your real answers.",
       boost: ["Mantis", "Luna Snow"] },
     { name: "Psionic Vortex", partner: "Invisible Woman",
-      effect: "Maelstrom becomes Psionic Vortex, launching enemies toward him; Shield of the Seraphim gains more shield. Enhanced: damage dealt by the vortex gives him proportional Bonus Health",
+      effect: "Maelstrom becomes Psionic Vortex, launching enemies toward him; Shield of the Seraphim gains more shield. Enhanced: damage dealt by the vortex gives him proportional Bonus Health (S11: the bonus shield is reduced, the vortex no longer gives allies Bonus Health, and the conversion into his Bonus Health is increased)",
       note: "The health bump only matters once the vortex is live — burst or displace him before the cast. Wolverine and The Punisher punish him the instant the shield drops.",
       boost: [] },
   ],
   "Emma Frost": [
     { name: "Iced Out Diamond", partner: "Luna Snow",
-      effect: "Emma releases winter energy forward, dealing damage and Slow. Enhanced: Zero Diamond — frost in front of her forms a barrier that blocks enemy attacks and movement. S10: base health 650 → 675, Pulse range 18 → 20m",
+      effect: "Emma releases winter energy forward, dealing damage and Slow. Enhanced: Zero Diamond — frost in front of her forms a barrier that blocks enemy attacks and movement. S10: base health 650 → 675, Pulse range 18 → 20m; S11: the Zero Diamond shield is reduced",
       note: "The barrier only covers her front, so don't shoot into it — approach from the side or over it. Hela and Hawkeye punish the slow walk-up, and the Slow is the only real new sting.",
       boost: ["Hela", "Hawkeye"] },
     { name: "Spirit Breaker", partner: "Mantis",
@@ -494,7 +495,7 @@ const TEAMUPS = {
   ],
   "Groot": [
     { name: "Wild Wall", partner: "Mantis",
-      effect: "Summons a Wild Wall that gives allies in range Continuous Healing and Bonus Health (S10: Ironwood Wall Bonus Health 40 → 50)",
+      effect: "Summons a Wild Wall that gives allies in range Continuous Healing and Bonus Health (S10: Ironwood Wall Bonus Health 40 → 50; S11: the wall is affected by the Flora Colossus passive)",
       note: "Wall plus heal zone makes holding the chokepoint sticky. Go around instead of punching through — Venom diving what's behind it is even better than usual.",
       boost: ["Venom"] },
     { name: "Bubble Buddies", partner: "Jeff the Land Shark",
@@ -524,13 +525,17 @@ const TEAMUPS = {
   ],
   "Rogue": [
     { name: "Mr. & Mrs. X", partner: "Gambit",
-      effect: "After activation every attack triggers a kinetic explosion that damages nearby enemies and heals nearby allies. Enhanced: she stays permanently locked in the Hearts as One state",
-      note: "The self-sustain makes raw burst less reliable. Mantis sleep and Luna freeze end the engage outright instead of racing a damage check she can out-heal.",
+      effect: "After activation every attack triggers a kinetic explosion that damages nearby enemies and heals nearby allies. Enhanced: she stays permanently locked in the Hearts as One state (S11: cooldown, damage and healing all reduced)",
+      note: "The self-sustain (trimmed in S11) still makes raw burst less reliable. Mantis sleep and Luna freeze end the engage outright instead of racing a damage check she can out-heal.",
       boost: ["Mantis", "Luna Snow"] },
     { name: "Explosive Entanglement", partner: "Magneto",
       effect: "A magnetic field drastically boosts Defensive Stance's damage reduction and converts absorbed damage into Southern Brawl damage. Enhanced: Southern Brawl knocks back, with bonus damage into walls",
       note: "She has to stand still in the stance for any of it to matter. Winter Soldier's hook pulls her out before the reduction or the payoff kicks in.",
       boost: ["Winter Soldier"] },
+    { name: "Protective Siblings", partner: "Nightcrawler",
+      effect: "New in Season 11. Active (C, 15s cooldown) ability shared with Nightcrawler: he vanishes, releases energy that damages enemies and heals nearby allies, then slams down for area damage and a Slow. With Rogue on the team, the energy is recalled after the slam for more damage and healing and pulls enemies toward him",
+      note: "The payoff belongs to Nightcrawler, but it makes Rogue's team harder to dive through. Peni Parker's mines and Emma Frost's CC punish the landing, and The Thing's Yancy Street Charge or Namor's ult stop the teleport out.",
+      boost: ["Peni Parker", "Emma Frost", "The Thing"] },
   ],
   "The Thing": [
     { name: "Two-In-One", partner: "Human Torch",
@@ -564,7 +569,7 @@ const TEAMUPS = {
   ],
   "Black Cat": [
     { name: "Feline Alliance", partner: "Black Panther",
-      effect: "Damage taken builds Vibranium Energy; at a threshold she unleashes an explosion that damages and knocks back, with a brief Speed Boost and Bonus Health. Enhanced: no threshold — triggerable any time. S10: hitting enemies with it restores 50 Fortune each (cap 100)",
+      effect: "Damage taken builds Vibranium Energy; at a threshold she unleashes an explosion that damages and knocks back, with a brief Speed Boost and Bonus Health. Enhanced: no threshold — triggerable any time. S10: hitting enemies with it restores 50 Fortune each (cap 100); S11: Bonus Health, Fortune per enemy hit and the Fortune cap are all increased",
       note: "It's a panic button on a shorter leash now. Phantom Pursuit also lost its invincibility in S10 (now 50% damage reduction and Unstoppable), so catch her before she commits — Emma Frost and Luna's freeze can't land mid-cast.",
       boost: ["Emma Frost", "Luna Snow"] },
     { name: "Binding Ties", partner: "Spider-Man",
@@ -584,11 +589,11 @@ const TEAMUPS = {
   ],
   "Black Widow": [
     { name: "Allied Agents", partner: "Hawkeye",
-      effect: "Hits build Focus; at three stacks she enters a Focused state where her next shot gets Hunter's Sight. Enhanced: a critical hit keeps Focused from expiring, so enhanced fire continues until a crit is missed",
+      effect: "Hits build Focus; at three stacks she enters a Focused state where her next shot gets Hunter's Sight. Enhanced: a critical hit keeps Focused from expiring, so enhanced fire continues until a crit is missed (S11: Focused-state damage also gives her Bonus Health, and fewer Focus stacks are needed)",
       note: "The chain only holds together while she keeps landing crits uninterrupted. Spider-Man and Black Panther breaking her line of sight stops it before it starts (Assassin's Focus ult cost 2800 → 3100 in S10).",
       boost: ["Spider-Man", "Black Panther"] },
     { name: "Burning Bullets", partner: "Phoenix",
-      effect: "Red Room Rifle gets a Fire Rate Boost and Plasma Cannon becomes a no-charge hitscan laser. Enhanced: Plasma Cannon gains a second charge",
+      effect: "Red Room Rifle gets a Fire Rate Boost and Plasma Cannon becomes a no-charge hitscan laser. Enhanced: Plasma Cannon gains a second charge (S11: Electro-Plasma Blast damage further increased)",
       note: "More chip damage, not more survivability. Psylocke's stealth-burst approach ends her before she spends either charge.",
       boost: ["Psylocke"] },
   ],
@@ -664,8 +669,8 @@ const TEAMUPS = {
   ],
   "Elsa Bloodstone": [
     { name: "Prehistoric Trap", partner: "Devil Dinosaur",
-      effect: "After placing a Smoky Snare, Diablo watches the area and Immobilizes and damages approaching enemies, plus a lethal gas for area damage. Enhanced: she can store and deploy two snares (10.5: cooldown 12s → 15s)",
-      note: "Two traps still need time to set and enemies to walk into them. Emma Frost catching her before the snares are down denies twice the setup.",
+      effect: "After placing a Smoky Snare, Diablo watches the area and Immobilizes and damages approaching enemies, plus a lethal gas for area damage. Enhanced: she can store and deploy two snares (10.5: cooldown 12s → 15s; S11: she loses one ability charge and Smoky Snare's cooldown is reduced)",
+      note: "Traps still need time to set and enemies to walk into them. Emma Frost catching her before the snares are down denies twice the setup.",
       boost: ["Emma Frost"] },
     { name: "Loudmouth Mercs", partner: "Deadpool",
       effect: "Living Bullet becomes special rounds that Taunt, Slow and damage nearby enemies over time; the auto-recall heals her and raises her Inherited Instinct cap by one block. Enhanced: significantly faster Instinct gain",
@@ -701,6 +706,10 @@ const TEAMUPS = {
       effect: "Casting Stepping Discs inside a Hellish Magic Circle refunds energy, and each use summons a Limbo Demon. Enhanced: demons get more Health and range — nerfed in S10 (cooldown 15s → 20s, bonus demon health 100 → 25)",
       note: "More demons are more pressure to clear, but each disc entry is still the same tell. Peni Parker's mines punish every stepping-disc engage.",
       boost: ["Peni Parker"] },
+    { name: "Demon Disciple", partner: "Nightcrawler",
+      effect: "New in Season 11. Passive shared with Nightcrawler: each warp leaves a spell field that damages enemies and heals allies. With Magik on the team, every warp also grants him Bonus Health",
+      note: "A teleport-heavy duo means constant fields underfoot. Kill the Strategist, not the Duelist — Winter Soldier's hook and Peni Parker's mines catch him mid-warp.",
+      boost: ["Winter Soldier", "Peni Parker"] },
   ],
   "Mister Fantastic": [
     { name: "Fantastic Amplifier", partner: "Rocket Raccoon",
@@ -794,7 +803,7 @@ const TEAMUPS = {
   ],
   "Adam Warlock": [
     { name: "Cosmic Cyclone", partner: "Storm",
-      effect: "Teammates linked by Soul Bond receive a Speed Boost. Enhanced: linked teammates also gain a Damage Boost",
+      effect: "Teammates linked by Soul Bond receive a Speed Boost. Enhanced: linked teammates also gain a Damage Boost (S11: the speed boost is increased)",
       note: "More value from staying alive makes killing him worth more too. Spider-Man's punish on his low mobility is still a free meal every dive.",
       boost: ["Spider-Man"] },
     { name: "Flawless Design", partner: "Ultron",
@@ -804,7 +813,7 @@ const TEAMUPS = {
   ],
   "Cloak & Dagger": [
     { name: "Oblivion Shroud", partner: "The Hood",
-      effect: "Veils are warped by hellfire energy and stop after a set distance; enemy damage through the Veil of Light is weakened, and Veil of Darkness healing is subject to Healing Reduction. Enhanced: both veils widen and allies passing through gain a Damage Boost",
+      effect: "Veils are warped by hellfire energy and stop after a set distance; enemy damage through the Veil of Light is weakened, and Veil of Darkness healing is subject to Healing Reduction. Enhanced: both veils widen and allies passing through gain a Damage Boost (S11: veil effects also knock enemies back along their path)",
       note: "Wider veils are a bigger team tool, not a defensive upgrade for them personally. Psylocke's burst kills before the swap to Cloak.",
       boost: ["Psylocke"] },
     { name: "Frozen Haven", partner: "Luna Snow",
@@ -834,21 +843,21 @@ const TEAMUPS = {
   ],
   "Loki": [
     { name: "Vibrant Vitality", partner: "Mantis",
-      effect: "Regeneration Domain grants allies in range a Damage Boost",
-      note: "A damage zone rewards staying inside it. Storm's constant area damage shreds his clones and exposes the real Loki (S10: Mystical Missile healing 10 → 15, stealth self-heal 20 → 30/s).",
+      effect: "Regeneration Domain used to grant allies in range a Damage Boost — S11 removed it",
+      note: "With the Damage Boost gone in S11 there's little left to punish here. Storm's constant area damage shreds his clones and exposes the real Loki (S10: Mystical Missile healing 10 → 15, stealth self-heal 20 → 30/s).",
       boost: ["Storm"] },
     { name: "Villain's Illusion", partner: "Hela",
-      effect: "Gains a new ability to target fallen heroes (friend or foe) and assume their form for a set time; he can't cast their Ultimate while transformed",
+      effect: "Gains a new ability to target fallen heroes (friend or foe) and assume their form for a set time; he can't cast their Ultimate while transformed (S11: destroying an illusion adds cooldown to Doppelganger and Devious Exchange)",
       note: "A copycat of whoever just died, minus their ult. Focus the unit that appeared out of a corpse. Storm's area damage and Mantis's sleep deal with it the same as ever.",
       boost: ["Storm", "Mantis"] },
   ],
   "Luna Snow": [
     { name: "Atlas Bond", partner: "White Fox",
-      effect: "Unleashes a spirit fox forward that Charms enemies and heals allies in its path. Enhanced: the fox returns automatically at max range. S10: summoning it no longer cleanses Luna",
+      effect: "Unleashes a spirit fox forward that damages enemies and heals allies in its path (S11: Charm removed, fox healing and damage increased). Enhanced: the fox returns automatically at max range. S10: summoning it no longer cleanses Luna",
       note: "Her self-cleanse is gone, so crowd control sticks to her now. Mantis's sleep and Loki's tools land where they used to be wasted.",
       boost: ["Mantis", "Loki"] },
     { name: "Duality Dance", partner: "Adam Warlock",
-      effect: "Casts Soul Bond to tether everyone in range: attacking tethered enemies or healing linked allies restores her Health. Enhanced: crits with Light & Dark Ice reduce Absolute Zero and Ice Arts cooldowns",
+      effect: "Casts Soul Bond to tether everyone in range: attacking tethered enemies or healing linked allies restores her Health. Enhanced: crits with Light & Dark Ice reduce Absolute Zero and Ice Arts cooldowns (S11: healing conversion increased)",
       note: "Faster cooldowns don't help if she's dead before using them. Black Panther's dash burst beats her self-sustain before any extra uptime matters.",
       boost: ["Black Panther"] },
   ],
@@ -861,6 +870,16 @@ const TEAMUPS = {
       effect: "On defeat she moves freely as a soul, healing nearby allies, and reforges her body at a chosen spot. Enhanced: Nature's Favor is stronger after Natural Anger, and the soul can forge a Soul Bond that heals over time and splits damage (S10: soul-form healing 5 → 30/s, radius 5 → 8m)",
       note: "Her death isn't the end — the soul keeps healing, but she isn't casting sleep or anything offensive meanwhile. Black Panther's dash resets out-tempo her single CC either way.",
       boost: ["Black Panther"] },
+  ],
+  "Nightcrawler": [
+    { name: "Protective Siblings", partner: "Rogue",
+      effect: "Active (C, 15s cooldown): he vanishes and releases energy that damages enemies and heals nearby allies, then slams down for area damage and a Slow. Enhanced with Rogue: the energy is recalled after the slam, dealing more damage and healing, and pulling enemies toward him",
+      note: "The combo ends with him landed in the middle of your team at 275 health. Wait out the recall, then burst him — Peni Parker's mines and Emma Frost's CC punish the landing, and The Thing's Yancy Street Charge or Namor's ult cut off the teleport out.",
+      boost: ["Peni Parker", "Emma Frost", "The Thing"] },
+    { name: "Demon Disciple", partner: "Magik",
+      effect: "Passive: every warp leaves a spell field that damages enemies and heals allies. Enhanced with Magik: each warp also grants him Bonus Health",
+      note: "More warps mean more fields and more Bonus Health, so the answer is to stop him teleporting. Winter Soldier's hook, Namor's spears and Peni Parker's mines all punish a warp-heavy dive.",
+      boost: ["Winter Soldier", "Namor", "Peni Parker"] },
   ],
   "Rocket Raccoon": [
     { name: "Planet X Pals", partner: "Groot",
@@ -1810,6 +1829,25 @@ const COUNTERS = {
       ["Invisible Woman", "Push peels divers better than Mantis can"],
     ],
   },
+  "Nightcrawler": {
+    // Season 11 launch hero — no Counterwatch matchup data yet. Vanguard/Duelist picks 1-2 follow
+    // launch-week guides (mines, Diamond form, spears, hook); the rest are kit-based on a 275-health Strategist.
+    V: [
+      ["Peni Parker", "Mines punish every warp-in and the second ult press drops him in the middle of them"],
+      ["Emma Frost", "Diamond form shrugs off the dive and CC catches him mid-landing"],
+      ["The Thing", "Yancy Street Charge cuts off his teleport routes and he can't out-trade a brawler"],
+    ],
+    D: [
+      ["Namor", "Spears and turrets zone out his landing spots"],
+      ["Winter Soldier", "Bionic Hook yanks him out of a warp and finishes a 275-health target"],
+      ["Hela", "Headshots a 275-health Strategist from range"],
+    ],
+    S: [
+      ["Mantis", "Sleep stops the teleport chain (shorter after the S11 nerf, still a hard stop)"],
+      ["Cloak & Dagger", "Blind breaks his sword and grenade tracking"],
+      ["Luna Snow", "Freeze catches him before the third Smoke Shift press"],
+    ],
+  },
   "Rocket Raccoon": {
     V: [
       ["Venom", "Chases the wall-crawl and breaks the revive beacon"],
@@ -1874,18 +1912,22 @@ const state = { tab: "solo", roleFilter: "ALL", selected: null, page: 0, query: 
 
 const heroRole = (name) => { const h = HEROES.find((x) => x.name === name); return h ? h.role : "D"; };
 
-// ─── Meta tier (Counterwatch shrunk win rate, all ranks, Season 10.5 — updated Oct 15 2026) ───
+// ─── Meta tier (Counterwatch shrunk win rate, all ranks, Season 11 launch — updated Nov 13 2026) ───
 // Used ONLY as a tie-breaker between heroes that already counter the enemy, and to
 // flag picks that are weak in the current meta. Matchup data still decides who counters whom.
 const TIER = {
-  // Season 10.5 — Counterwatch shrunk win rate, all ranks, pulled Oct 15 2026 (full 56-hero list).
-  // Deadpool is one flex hero here; Counterwatch splits his kits (Duelist D, Strategist D, Vanguard F).
-  "Ultron":"S","Storm":"S","Peni Parker":"S","Magik":"S","Mantis":"S","Gorr the God Butcher":"S","Rocket Raccoon":"S","Mister Fantastic":"S",
-  "Devil Dinosaur":"A","Hulk":"A","Blade":"A","Scarlet Witch":"A","Thor":"A","Angela":"A","Captain America":"A","Hela":"A","Iron Man":"A",
-  "Daredevil":"B","The Hood":"B","Iron Fist":"B","Rogue":"B","Loki":"B","Black Panther":"B","Psylocke":"B","Adam Warlock":"B","Doctor Strange":"B","Human Torch":"B","Jubilee":"B",
-  "Black Cat":"C","The Thing":"C","Spider-Man":"C","Venom":"C","Magneto":"C","Groot":"C","White Fox":"C","Winter Soldier":"C","Gambit":"C","Emma Frost":"C","Wolverine":"C",
-  "Star-Lord":"D","Invisible Woman":"D","Cloak & Dagger":"D","Hawkeye":"D","Elsa Bloodstone":"D","Deadpool":"D","Black Widow":"D","Moon Knight":"D","Luna Snow":"D","Namor":"D",
-  "Jeff the Land Shark":"F","Cyclops":"F","Phoenix":"F","The Punisher":"F","Squirrel Girl":"F",
+  // Season 11 launch — Counterwatch shrunk win rate, all ranks. NOTE: the page's data window is Oct 10 – Nov 12
+  // (Season 10.5), i.e. BEFORE the Season 11 patch, so it does not reflect the Nov 13 balance changes.
+  // Deadpool is one flex hero here; Counterwatch splits his kits (Strategist D, Duelist D, Vanguard D).
+  "Peni Parker":"S","Ultron":"S","Gorr the God Butcher":"S","Storm":"S","Mister Fantastic":"S","Rocket Raccoon":"S","Mantis":"S","Magik":"S","Hulk":"S",
+  "Devil Dinosaur":"A","Thor":"A","Adam Warlock":"A","Captain America":"A","Daredevil":"A",
+  "Loki":"B","Angela":"B","Rogue":"B","Hela":"B","Iron Man":"B","Doctor Strange":"B","Scarlet Witch":"B","Human Torch":"B","Psylocke":"B","Blade":"B","Black Panther":"B","Iron Fist":"B","Groot":"B","Jubilee":"B","Venom":"B","Spider-Man":"B",
+  "The Hood":"C","Wolverine":"C","Invisible Woman":"C","White Fox":"C","Phoenix":"C","Emma Frost":"C","Hawkeye":"C","Star-Lord":"C","Winter Soldier":"C","Black Cat":"C",
+  "Deadpool":"D","Gambit":"D","Magneto":"D","Luna Snow":"D","Elsa Bloodstone":"D","Jeff the Land Shark":"D","The Thing":"D","Namor":"D",
+  "Moon Knight":"F","Cyclops":"F","Cloak & Dagger":"F","Black Widow":"F","Squirrel Girl":"F","The Punisher":"F",
+  // Nightcrawler launched Nov 13 and has no Counterwatch rating yet. One launch-day report had ~44% over
+  // ~7,400 games, read as a learning curve — held at C (neutral) until real data exists.
+  "Nightcrawler":"C",
 };
 // "Hulk" maps to Counterwatch's "Bruce Banner" A-tier entry. Deadpool listed once (C) as the app
 // treats him as one flex hero, though Counterwatch now splits his three role-kits separately.
@@ -1894,18 +1936,18 @@ const TIER_COLOR = { S:"#FF5470", A:"#FFB454", B:"#4ADEB8", C:"#7d86a3", D:"#7d8
 const tierOf = (name) => TIER[name] || "C";
 const isWeakMeta = (name) => TIER_RANK[tierOf(name)] >= TIER_RANK["D"]; // D or F
 
-// ─── Ban priority (Season 10.5, RivalsTracker ban rates, Oct 2026). This is "how oppressive / frustrating to face" — a
+// ─── Ban priority (Season 11 launch, Counterwatch ban rates, Nov 2026). This is "how oppressive / frustrating to face" — a
 // separate axis from raw tier. High = the hero swings games or is miserable to play against.
 // Scale 0–10. Used alongside how hard a hero counters YOUR planned comp.
 const BAN_PRIORITY = {
-  // Season 10.5 — top 15 from RivalsTracker ban rates (Oct 2026), ranked in order. Heroes outside that
-  // top 15 keep their Season 9 consensus value, capped at 5, since exact current ban rates weren't available.
-  "Devil Dinosaur": 9, "Peni Parker": 9, "Phoenix": 8, "Gorr the God Butcher": 8, "Spider-Man": 7,
-  "Elsa Bloodstone": 7, "Gambit": 7, "Emma Frost": 6, "Namor": 6, "Winter Soldier": 6,
-  "Black Panther": 6, "Scarlet Witch": 5, "Cloak & Dagger": 5, "Psylocke": 5, "Hela": 5,
-  "Magik": 5, "Invisible Woman": 5, "Storm": 5, "Daredevil": 5, "Rocket Raccoon": 5, "Mantis": 5,
-  "Iron Fist": 5, "Ultron": 5, "Blade": 5, "Mister Fantastic": 4, "Wolverine": 4, "Cyclops": 4,
-  "Captain America": 4, "Venom": 3, "Black Cat": 3, "Jubilee": 3,
+  // Season 11 launch — Counterwatch ban rates (Competitive, all ranks, last 8 weeks, pulled Nov 13 2026; this is
+  // mostly Season 10.5 data). Scale: ≥50% = 10, 30% = 9, 25% = 8, 20–22% = 7, 16–18% = 6, 12% = 5, 10% = 4,
+  // 5–8% = 3. Heroes under ~5% fall back to the default of 2.
+  "Devil Dinosaur": 10, "Peni Parker": 9, "Spider-Man": 8, "Gorr the God Butcher": 8,
+  "Gambit": 7, "Elsa Bloodstone": 7, "Phoenix": 7,
+  "Black Panther": 6, "Emma Frost": 6, "Scarlet Witch": 6, "Winter Soldier": 6,
+  "Hela": 5, "Namor": 5, "Psylocke": 5, "Cloak & Dagger": 4,
+  "The Thing": 3, "Groot": 3, "The Hood": 3, "Magneto": 3, "The Punisher": 3,
 };
 const banPriorityOf = (name) => BAN_PRIORITY[name] || 2;
 
@@ -2219,6 +2261,7 @@ const ALIASES = {
   "Loki": ["loki", "low key", "lokey"],
   "Luna Snow": ["luna snow", "luna"],
   "Mantis": ["mantis", "mantes"],
+  "Nightcrawler": ["nightcrawler", "night crawler", "kurt", "kurt wagner", "bamf"],
   "Rocket Raccoon": ["rocket raccoon", "rocket", "raccoon"],
   "Ultron": ["ultron"],
   "White Fox": ["white fox", "fox"],
@@ -2318,7 +2361,7 @@ const TAGS = {
   "Cyclops":["poke"], "Daredevil":["dive","brawl"], "Deadpool":["dive","brawl"], "Elsa Bloodstone":["brawl"],
   "Gorr the God Butcher":["dive","brawl"],
   "Hawkeye":["poke"], "Hela":["poke"], "Human Torch":["air","poke"], "Iron Fist":["dive"],
-  "Iron Man":["air","poke"], "Jubilee":["sustain"], "Magik":["dive"], "Mister Fantastic":["brawl"], "Moon Knight":["poke"],
+  "Iron Man":["air","poke"], "Jubilee":["sustain"], "Nightcrawler":["dive","sustain"], "Magik":["dive"], "Mister Fantastic":["brawl"], "Moon Knight":["poke"],
   "Namor":["poke","antidive"], "Phoenix":["poke"], "Psylocke":["dive"], "Scarlet Witch":["brawl"],
   "Spider-Man":["dive"], "Squirrel Girl":["poke"], "Star-Lord":["poke"], "Storm":["air","poke"],
   "The Punisher":["poke"], "Winter Soldier":["poke","brawl"], "Wolverine":["dive"],
